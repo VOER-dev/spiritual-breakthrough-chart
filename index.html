@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Breakthrough">
+<meta name="theme-color" content="#0e1829">
+<title>Spiritual Breakthrough Chart — Victory Outreach Eagle Rock</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1a2744;--navy-light:#243560;--gold:#c9a84c;--gold-light:#e8c97a;--white:#f5f7fa;--bg:#0e1829;--surface:#162035;--surface2:#1e2d47;--text:#e8edf5;--text-muted:#8fa3b8;--success:#3dbd7a;--red:#e05252;--border:rgba(201,168,76,0.25);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.screen{display:none;min-height:100vh;flex-direction:column;}.screen.active{display:flex;}
+#screen-splash{align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#1a2744 0%,#0e1829 70%);text-align:center;padding:2rem;}
+.splash-logo{width:90px;height:90px;background:linear-gradient(145deg,var(--gold),var(--gold-light));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:2rem;font-weight:700;color:var(--navy);margin:0 auto 1.5rem;box-shadow:0 0 0 8px rgba(201,168,76,.15),0 0 0 16px rgba(201,168,76,.07);}
+.splash-church{font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.2em;color:var(--gold);margin-bottom:.5rem;}
+.splash-title{font-family:'Cinzel',serif;font-size:1.8rem;font-weight:700;color:var(--white);line-height:1.2;margin-bottom:2rem;}.splash-title span{color:var(--gold);}
+.btn{display:inline-block;padding:.85rem 2.5rem;border-radius:4px;border:none;cursor:pointer;font-family:'Lato',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);}.btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,.4);}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text-muted);margin-top:.75rem;}.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+#screen-onboarding{padding:0;background:var(--bg);}
+.onboard-header{background:var(--surface);border-bottom:1px solid var(--border);padding:1.25rem 1.5rem;}
+.onboard-header .step-label{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;}
+.onboard-header h2{font-size:1rem;font-weight:700;color:var(--white);margin-top:.15rem;}
+.progress-bar{height:3px;background:var(--surface2);}.progress-fill{height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light));transition:width .4s ease;}
+.onboard-body{flex:1;padding:2rem 1.5rem;max-width:540px;margin:0 auto;width:100%;}
+.onboard-question{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--white);margin-bottom:.5rem;}
+.onboard-subtitle{font-size:.85rem;color:var(--text-muted);margin-bottom:1.75rem;line-height:1.6;}
+.field-group{margin-bottom:1.25rem;}.field-label{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;display:block;}
+input[type=text],input[type=email],input[type=tel]{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Lato',sans-serif;font-size:.95rem;padding:.75rem 1rem;outline:none;transition:border-color .2s;}
+input:focus{border-color:var(--gold);}
+.habit-inputs{display:flex;flex-direction:column;gap:.75rem;}.habit-item{display:flex;align-items:center;gap:.75rem;}
+.habit-num{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--gold);flex-shrink:0;}
+.onboard-footer{padding:1.5rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;max-width:540px;margin:0 auto;width:100%;}
+.btn-back{background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-family:'Lato',sans-serif;font-size:.85rem;padding:.5rem;}.btn-back:hover{color:var(--gold);}
+.notif-card{background:var(--surface);border:1px solid var(--gold);border-radius:8px;padding:1.5rem;text-align:center;margin-top:1rem;}
+.notif-icon{font-size:2.5rem;margin-bottom:1rem;}.notif-card h3{font-family:'Cinzel',serif;color:var(--gold);margin-bottom:.5rem;}
+.notif-card p{font-size:.82rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;}
+select{background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Lato',sans-serif;font-size:.9rem;padding:.6rem 1rem;outline:none;}
+select:focus{border-color:var(--gold);}
+#screen-main{background:var(--bg);flex-direction:column;}
+.app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:.85rem 1.25rem;display:flex;align-items:center;justify-content:space-between;}
+.app-title{font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold);letter-spacing:.1em;}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:var(--navy);cursor:pointer;}
+.tab-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
+.tab{flex:1;padding:.75rem .25rem;text-align:center;font-size:.65rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab-content{display:none;flex:1;overflow-y:auto;}.tab-content.active{display:block;}
+.chart-container{padding:1rem;}
+.chart-month-label{font-family:'Cinzel',serif;font-size:.75rem;color:var(--gold);letter-spacing:.15em;text-align:center;margin-bottom:1rem;}
+.chart-table-wrap{overflow-x:auto;}
+table.bc{width:100%;border-collapse:collapse;font-size:.65rem;min-width:600px;}
+.bc th{background:var(--navy);color:var(--gold);font-family:'Cinzel',serif;font-weight:600;padding:.4rem .2rem;text-align:center;border:1px solid var(--border);}
+.bc th.rl{text-align:left;padding-left:.5rem;min-width:110px;}
+.bc td{border:1px solid var(--border);text-align:center;padding:.35rem .1rem;width:22px;min-width:22px;color:var(--text-muted);}
+.bc td.cl{text-align:left;padding-left:.5rem;color:var(--text);font-size:.65rem;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;}
+.bc td.v{background:rgba(61,189,122,.15);color:var(--success);font-weight:700;font-size:.8rem;}
+.cat-b{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--navy-light);color:var(--gold);font-family:'Cinzel',serif;font-weight:700;font-size:.65rem;margin-right:4px;flex-shrink:0;}
+.sh-row td{background:var(--surface2);color:var(--text-muted);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:.3rem .5rem;font-style:italic;}
+.scripture-strip{margin-top:1rem;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1rem;}
+.scripture-strip h4{font-family:'Cinzel',serif;font-size:.7rem;color:var(--gold);letter-spacing:.1em;margin-bottom:.75rem;text-transform:uppercase;}
+.sr{display:flex;gap:.75rem;align-items:flex-start;margin-bottom:.5rem;font-size:.75rem;}
+.sr .badge{background:var(--navy-light);color:var(--gold);font-family:'Cinzel',serif;font-weight:700;padding:.1rem .5rem;border-radius:2px;font-size:.65rem;flex-shrink:0;}
+.sr .refs{color:var(--text-muted);}
+.cw{padding:1.25rem;max-width:540px;margin:0 auto;}
+.cd{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.15em;color:var(--gold);text-align:center;margin-bottom:.25rem;}
+.cdn{font-family:'Cinzel',serif;font-size:2rem;font-weight:700;color:var(--white);text-align:center;margin-bottom:1.5rem;}.cdn span{font-size:1rem;color:var(--text-muted);}
+.cst{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;margin:1.25rem 0 .75rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);}
+.qc{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.85rem 1rem;margin-bottom:.6rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;}
+.ql{display:flex;align-items:center;gap:.75rem;flex:1;}.qt{font-size:.85rem;line-height:1.4;color:var(--text);}
+.tb{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;flex-shrink:0;}
+.tb button{padding:.35rem .65rem;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;border:none;background:transparent;color:var(--text-muted);transition:all .15s;font-family:'Lato',sans-serif;}
+.tb button.yes.sel{background:var(--success);color:#fff;}.tb button.no.sel{background:var(--red);color:#fff;}
+.sub-btn{width:100%;margin-top:1.5rem;padding:1rem;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);border:none;border-radius:4px;font-family:'Cinzel',serif;font-size:1rem;font-weight:700;letter-spacing:.1em;cursor:pointer;text-transform:uppercase;transition:all .2s;}.sub-btn:hover{transform:translateY(-1px);}
+.ad{text-align:center;padding:3rem 1.5rem;color:var(--text-muted);}.ad .ci{font-size:3rem;color:var(--success);margin-bottom:1rem;}.ad h3{font-family:'Cinzel',serif;color:var(--white);margin-bottom:.5rem;}
+.comm-wrap{padding:1.25rem;}.comm-title{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.15em;color:var(--gold);text-align:center;margin-bottom:1.25rem;text-transform:uppercase;}
+.mc{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:1rem;margin-bottom:.75rem;}
+.mch{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;}
+.mav{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--navy-light),var(--navy));border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:var(--gold);flex-shrink:0;}
+.mn{font-weight:700;font-size:.9rem;color:var(--white);}.ms{font-size:.75rem;color:var(--gold);}
+.mic{display:grid;grid-template-columns:repeat(31,1fr);gap:2px;}.mic-cell{height:8px;border-radius:1px;background:var(--surface2);}.mic-cell.done{background:var(--success);}.mic-cell.partial{background:var(--gold);opacity:.6;}
+.notif-banner{background:rgba(201,168,76,.1);border:1px solid var(--border);border-radius:6px;padding:.75rem 1rem;margin:.75rem 1rem 0;display:flex;align-items:center;gap:.75rem;cursor:pointer;}
+.nb-text{font-size:.78rem;color:var(--text-muted);flex:1;}.nb-btn{font-size:.7rem;font-weight:700;color:var(--gold);white-space:nowrap;font-family:'Cinzel',serif;letter-spacing:.05em;}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface2);border:1px solid var(--gold);border-radius:6px;padding:.85rem 1.5rem;font-size:.85rem;color:var(--text);z-index:999;transition:transform .3s ease;text-align:center;max-width:320px;width:90%;}.toast.show{transform:translateX(-50%) translateY(0);}
+.toast .tt{font-family:'Cinzel',serif;color:var(--gold);font-size:.9rem;margin-bottom:.25rem;}
+.loader{display:flex;align-items:center;justify-content:center;padding:2rem;color:var(--text-muted);font-size:.85rem;gap:.5rem;}
+.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.scr{background:var(--navy-light);border:1px solid var(--gold);border-radius:6px;padding:1.25rem;margin-top:1.5rem;}
+.scr h3{font-family:'Cinzel',serif;color:var(--gold);font-size:.9rem;margin-bottom:1rem;text-align:center;letter-spacing:.1em;}
+.scr ul{list-style:none;}.scr li{display:flex;gap:.75rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.82rem;}.scr li:last-child{border-bottom:none;}
+.scr .sk{font-family:'Cinzel',serif;font-weight:700;color:var(--gold);min-width:20px;}.scr .st{color:var(--text-muted);}
+.sw{position:relative;display:inline-block;width:44px;height:24px;}.sw input{opacity:0;width:0;height:0;}
+.slsw{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--surface2);border:1px solid var(--border);border-radius:24px;transition:.3s;}
+.slsw:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:var(--text-muted);border-radius:50%;transition:.3s;}
+input:checked+.slsw{background:var(--gold);border-color:var(--gold);}input:checked+.slsw:before{transform:translateX(20px);background:var(--navy);}
+.ns{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:1rem;margin-top:1rem;}
+.nr{display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;}
+.nrl{font-size:.82rem;color:var(--text);}.nrs{font-size:.72rem;color:var(--text-muted);}
+</style>
+</head>
+<body>
+
+<div id="screen-splash" class="screen active">
+  <div class="splash-logo">V</div>
+  <div class="splash-church">Victory Outreach Eagle Rock</div>
+  <div class="splash-title">Spiritual<br><span>Breakthrough</span><br>Chart</div>
+  <p style="font-size:.85rem;color:var(--text-muted);max-width:280px;margin:0 auto 2rem;line-height:1.6;">31 days of prayer, God's Word, fasting, giving, and fellowship — tracked daily.</p>
+  <button class="btn btn-gold" onclick="goTo('onboard')">Begin My Journey</button><br>
+  <button class="btn btn-outline" onclick="tryLogin()">I already have an account</button>
+</div>
+
+<div id="screen-onboarding" class="screen">
+  <div class="progress-bar"><div class="progress-fill" id="pf" style="width:16%"></div></div>
+  <div class="onboard-header"><div><div class="step-label" id="sl">Step 1 of 6</div><h2 id="st2">Your Profile</h2></div></div>
+  <div class="onboard-body" id="ob"></div>
+  <div class="onboard-footer">
+    <button class="btn-back" id="bb" onclick="onboardBack()">← Back</button>
+    <button class="btn btn-gold" id="bn" onclick="onboardNext()">Continue →</button>
+  </div>
+</div>
+
+<div id="screen-main" class="screen">
+  <div class="app-header">
+    <div class="app-title">Breakthrough Chart</div>
+    <div style="display:flex;align-items:center;gap:.75rem;">
+      <div id="nd" style="display:none;width:8px;height:8px;background:var(--red);border-radius:50%;cursor:pointer;" onclick="switchTab('settings')" title="Enable notifications"></div>
+      <div class="user-avatar" id="ua" onclick="switchTab('settings')">VR</div>
+    </div>
+  </div>
+  <div id="nbw"></div>
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('chart')">My Chart</div>
+    <div class="tab" onclick="switchTab('checkin')">Check-In</div>
+    <div class="tab" onclick="switchTab('community')">Community</div>
+    <div class="tab" onclick="switchTab('settings')">Settings</div>
+  </div>
+
+  <div id="tab-chart" class="tab-content active">
+    <div class="chart-container">
+      <div class="chart-month-label" id="cml">— 31 DAY CHALLENGE</div>
+      <div class="chart-table-wrap"><table class="bc" id="mc2"></table></div>
+      <div class="scripture-strip">
+        <h4>Scripture References</h4>
+        <div class="sr"><span class="badge">A</span><span class="refs">Philippians 4:6 / James 5:16</span></div>
+        <div class="sr"><span class="badge">B</span><span class="refs">Matthew 4:4 / Joshua 1:8</span></div>
+        <div class="sr"><span class="badge">C</span><span class="refs">Isaiah 58:6 / Matthew 17:21</span></div>
+        <div class="sr"><span class="badge">D</span><span class="refs">Matthew 6:19-21 / 1 Tim. 6:10</span></div>
+        <div class="sr"><span class="badge">E</span><span class="refs">Hebrews 10:25 / Acts 2:46,47</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-checkin" class="tab-content"><div class="cw" id="ciw"></div></div>
+
+  <div id="tab-community" class="tab-content">
+    <div class="comm-wrap">
+      <div class="comm-title">Our Congregation's Progress</div>
+      <div id="cl2"><div class="loader"><div class="spin"></div> Loading...</div></div>
+    </div>
+  </div>
+
+  <div id="tab-settings" class="tab-content">
+    <div style="padding:1.25rem;max-width:540px;margin:0 auto;">
+      <div style="font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.15em;color:var(--gold);margin-bottom:1rem;text-transform:uppercase;">Notification Settings</div>
+      <div class="ns">
+        <div class="nr">
+          <div><div class="nrl">Daily Reminder</div><div class="nrs">Reminded daily to complete your check-in</div></div>
+          <label class="sw"><input type="checkbox" id="tn" onchange="toggleNotif(this.checked)"><span class="slsw"></span></label>
+        </div>
+        <div class="nr" style="border-top:1px solid var(--border);margin-top:.5rem;padding-top:.75rem;">
+          <div><div class="nrl">Reminder Time</div><div class="nrs">What time should we remind you?</div></div>
+          <select id="ntp" onchange="saveNotifTime(this.value)">
+            <option value="07:00">7:00 AM</option><option value="08:00">8:00 AM</option>
+            <option value="09:00" selected>9:00 AM</option><option value="12:00">12:00 PM</option>
+            <option value="17:00">5:00 PM</option><option value="18:00">6:00 PM</option>
+            <option value="19:00">7:00 PM</option><option value="20:00">8:00 PM</option>
+            <option value="21:00">9:00 PM</option>
+          </select>
+        </div>
+        <div style="margin-top:1rem;"><button class="btn btn-gold" style="width:100%;padding:.65rem;" onclick="testNotif()">Send Test Notification</button></div>
+        <div id="ns2" style="font-size:.75rem;color:var(--text-muted);text-align:center;margin-top:.75rem;"></div>
+      </div>
+      <div style="font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.15em;color:var(--gold);margin:1.5rem 0 1rem;text-transform:uppercase;">My Profile</div>
+      <div class="ns" id="pd"></div>
+      <div style="margin-top:1rem;"><button class="btn btn-outline" style="width:100%;padding:.65rem;" onclick="confirmLogout()">Sign Out</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="tt" id="ttt"></div><div id="ttm"></div></div>
+
+<script>
+const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+let S = {
+  user:null, step:0,
+  od:{firstName:'',lastName:'',phone:'',email:'',goodHabits:['','',''],badHabits:['','',''],strongholds:['','','']},
+  ans:{}, chart:{}, notifEnabled:false, notifTime:'09:00'
+};
+
+const CATS = [
+  {key:'A',label:'Prayer',scr:'Philippians 4:6 / James 5:16'},
+  {key:'B',label:"God's Word",scr:'Matthew 4:4 / Joshua 1:8'},
+  {key:'C',label:'Fasting',scr:'Isaiah 58:6 / Matthew 17:21'},
+  {key:'D',label:'Giving',scr:'Matthew 6:19-21 / 1 Tim. 6:10'},
+  {key:'E',label:'Attend Church',scr:'Hebrews 10:25 / Acts 2:46,47'},
+];
+
+// ── SERVICE WORKER ──────────────────────────────
+async function regSW() {
+  if (!('serviceWorker' in navigator)) return;
+  try { await navigator.serviceWorker.register('./sw.js'); } catch(e) {}
+}
+
+async function reqNotif() {
+  if (!('Notification' in window)) { showToast('Not Supported','Notifications unavailable on this browser.'); return false; }
+  const r = await Notification.requestPermission();
+  return r === 'granted';
+}
+
+async function toggleNotif(on) {
+  if (on) {
+    const ok = await reqNotif();
+    if (!ok) { document.getElementById('tn').checked=false; showToast('Blocked','Allow notifications in your browser settings.'); updateNS(); return; }
+    S.notifEnabled=true; localStorage.setItem('notifEnabled','true');
+    schedNotif(S.notifTime);
+    showToast('Reminders On',`Daily reminder set for ${fmtTime(S.notifTime)}.`);
+    hideBanner();
+  } else {
+    S.notifEnabled=false; localStorage.removeItem('notifEnabled');
+    clearSched(); showToast('Reminders Off','Daily reminders disabled.');
+  }
+  updateNS();
+}
+
+function saveNotifTime(t) {
+  S.notifTime=t; localStorage.setItem('notifTime',t);
+  if (S.notifEnabled) { schedNotif(t); showToast('Time Updated',`Reminders set for ${fmtTime(t)}.`); }
+}
+
+function schedNotif(time) {
+  clearSched();
+  const [h,m] = time.split(':').map(Number);
+  const now=new Date(), next=new Date();
+  next.setHours(h,m,0,0);
+  if (next<=now) next.setDate(next.getDate()+1);
+  const ms = next-now;
+  const tid = setTimeout(()=>{ sendNotif(); const iid=setInterval(sendNotif,86400000); localStorage.setItem('nIid',iid); }, ms);
+  localStorage.setItem('nTid',tid);
+  localStorage.setItem('nNext',next.toISOString());
+}
+
+function clearSched() {
+  const t=localStorage.getItem('nTid'), i=localStorage.getItem('nIid');
+  if(t) clearTimeout(+t); if(i) clearInterval(+i);
+}
+
+function sendNotif() {
+  if (Notification.permission!=='granted') return;
+  const today=new Date().toISOString().split('T')[0];
+  if (S.user?.lastCheckin===today) return;
+  new Notification('Spiritual Breakthrough Chart',{body:`Day ${getDayNum()} — Don't miss today's victory! Tap to check in.`,tag:'daily-checkin',renotify:true});
+}
+
+async function testNotif() {
+  const ok = Notification.permission==='granted' || await reqNotif();
+  if (!ok) { showToast('Permission Needed','Allow notifications first.'); return; }
+  new Notification('Test Notification',{body:'Your daily check-in reminders are working!'});
+  showToast('Test Sent!','Check your notification area.');
+}
+
+function initNotifUI() {
+  const en=localStorage.getItem('notifEnabled')==='true';
+  const t=localStorage.getItem('notifTime')||'09:00';
+  S.notifEnabled=en; S.notifTime=t;
+  const tn=document.getElementById('tn'); if(tn) tn.checked=en;
+  const ntp=document.getElementById('ntp'); if(ntp) ntp.value=t;
+  if (en && Notification.permission==='granted') schedNotif(t);
+  updateNS();
+}
+
+function updateNS() {
+  const el=document.getElementById('ns2'); if(!el) return;
+  const p=Notification?.permission||'unavailable';
+  if (p==='granted'&&S.notifEnabled) {
+    const nx=localStorage.getItem('nNext');
+    const nxs=nx?new Date(nx).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit'}):'';
+    el.textContent=`Active — next: ${nxs}`; el.style.color='var(--success)';
+    document.getElementById('nd').style.display='none';
+  } else if (p==='denied') {
+    el.textContent='Blocked — enable in browser/phone settings'; el.style.color='var(--red)';
+  } else {
+    el.textContent='Toggle on above to enable daily reminders'; el.style.color='var(--text-muted)';
+    if (S.user) document.getElementById('nd').style.display='block';
+  }
+}
+
+function showBanner() {
+  if (S.notifEnabled||Notification?.permission==='denied') return;
+  document.getElementById('nbw').innerHTML=`<div class="notif-banner" onclick="switchTab('settings')"><div class="nb-text">🔔 Enable daily check-in reminders</div><div class="nb-btn">Set Up →</div></div>`;
+}
+function hideBanner() { document.getElementById('nbw').innerHTML=''; }
+function fmtTime(t) { const[h,m]=t.split(':').map(Number); return `${h%12||12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}`; }
+
+// ── NAVIGATION ──────────────────────────────────
+function goTo(sc) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+sc).classList.add('active');
+  if (sc==='main') { renderChart(); renderCheckin(); renderProfile(); setTimeout(()=>{showBanner();initNotifUI();},400); }
+  if (sc==='onboard') { S.step=0; renderStep(); }
+}
+
+function switchTab(name) {
+  const tabs=['chart','checkin','community','settings'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===name));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name==='community') loadCommunity();
+  if (name==='settings') { initNotifUI(); renderProfile(); }
+}
+
+function tryLogin() {
+  const email=prompt('Enter your email address:'); if(!email) return;
+  api('getUser',{email}).then(r=>{
+    if (r.success&&r.user) { S.user=r.user; loadChart(); initUI(); goTo('main'); }
+    else showToast('Not Found','No account found. Please create one.');
+  });
+}
+
+// ── ONBOARDING ──────────────────────────────────
+const STEPS=[
+  {l:'Step 1 of 6',t:'Your Profile',p:'16%'},
+  {l:'Step 2 of 6',t:'Good Habits to Develop',p:'33%'},
+  {l:'Step 3 of 6',t:'Bad Habits to Overcome',p:'50%'},
+  {l:'Step 4 of 6',t:'Strongholds to Break',p:'67%'},
+  {l:'Step 5 of 6',t:'Daily Reminders',p:'84%'},
+  {l:'Step 6 of 6',t:'Ready to Begin',p:'100%'},
+];
+
+function renderStep() {
+  const s=STEPS[S.step];
+  document.getElementById('sl').textContent=s.l;
+  document.getElementById('st2').textContent=s.t;
+  document.getElementById('pf').style.width=s.p;
+  document.getElementById('bb').style.visibility=S.step===0?'hidden':'visible';
+  const bn=document.getElementById('bn');
+  bn.textContent=S.step===5?'Start My 31 Days →':'Continue →';
+  bn.style.display='inline-block'; bn.disabled=false;
+  const ob=document.getElementById('ob'), d=S.od;
+
+  if (S.step===0) {
+    ob.innerHTML=`<div class="onboard-question">Who are you?</div><div class="onboard-subtitle">Create your breakthrough profile.</div>
+    <div class="field-group"><label class="field-label">First Name</label><input type="text" id="ff" value="${d.firstName}" placeholder="e.g. Maria"></div>
+    <div class="field-group"><label class="field-label">Last Name</label><input type="text" id="fl" value="${d.lastName}" placeholder="e.g. Garcia"></div>
+    <div class="field-group"><label class="field-label">Phone Number</label><input type="tel" id="fp" value="${d.phone}" placeholder="(714) 555-0000"></div>
+    <div class="field-group"><label class="field-label">Email Address</label><input type="email" id="fe" value="${d.email}" placeholder="you@email.com"></div>`;
+  } else if (S.step===1) {
+    ob.innerHTML=`<div class="onboard-question">Developing Good Habits</div><div class="onboard-subtitle">Name 3 good habits to build over 31 days. Asked daily.</div>
+    <div class="habit-inputs">${d.goodHabits.map((h,i)=>`<div class="habit-item"><div class="habit-num">${i+1}</div><input type="text" id="gh${i}" value="${h}" placeholder="e.g. Wake up at 5am to pray"></div>`).join('')}</div>`;
+  } else if (S.step===2) {
+    ob.innerHTML=`<div class="onboard-question">Overcoming Bad Habits</div><div class="onboard-subtitle">Name 3 bad habits to overcome. Track daily.</div>
+    <div class="habit-inputs">${d.badHabits.map((h,i)=>`<div class="habit-item"><div class="habit-num">${i+1}</div><input type="text" id="bh${i}" value="${h}" placeholder="e.g. Scrolling social media at night"></div>`).join('')}</div>`;
+  } else if (S.step===3) {
+    ob.innerHTML=`<div class="onboard-question">Breaking Strongholds</div><div class="onboard-subtitle">Name 3 strongholds to break. (Rev. 2:26)</div>
+    <div class="habit-inputs">${d.strongholds.map((h,i)=>`<div class="habit-item"><div class="habit-num">${i+1}</div><input type="text" id="sh${i}" value="${h}" placeholder="e.g. Fear of the future"></div>`).join('')}</div>`;
+  } else if (S.step===4) {
+    ob.innerHTML=`<div class="onboard-question">Stay Accountable Daily</div><div class="onboard-subtitle">Set a daily reminder so you never miss a check-in.</div>
+    <div class="notif-card">
+      <div class="notif-icon">🔔</div><h3>Daily Check-In Reminder</h3>
+      <p>We'll remind you every day to complete your check-in and record your victories.</p>
+      <div style="margin-bottom:.75rem;"><label class="field-label">Remind me at</label>
+      <select id="ont" style="width:100%;"><option value="07:00">7:00 AM</option><option value="08:00">8:00 AM</option><option value="09:00" selected>9:00 AM</option><option value="12:00">12:00 PM</option><option value="17:00">5:00 PM</option><option value="18:00">6:00 PM</option><option value="19:00">7:00 PM</option><option value="20:00">8:00 PM</option><option value="21:00">9:00 PM</option></select></div>
+      <button class="btn btn-gold" style="width:100%;" onclick="enableNotifOnboard()">Enable Reminders</button>
+      <div id="ons" style="margin-top:.75rem;font-size:.78rem;color:var(--text-muted);text-align:center;"></div>
+    </div>
+    <div style="text-align:center;margin-top:1rem;"><button onclick="S.step++;renderStep();" style="background:none;border:none;color:var(--text-muted);font-family:'Lato',sans-serif;font-size:.82rem;cursor:pointer;">Skip for now →</button></div>`;
+    bn.style.display='none'; return;
+  } else if (S.step===5) {
+    ob.innerHTML=`<div class="onboard-question" style="text-align:center;margin-top:1rem;">You're ready!</div>
+    <div class="onboard-subtitle" style="text-align:center;">Your 31-day challenge is set. Check in daily to mark your victories.</div>
+    <div style="margin:1.5rem 0;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:1rem;font-size:.82rem;color:var(--text-muted);line-height:1.7;">
+      <div style="color:var(--gold);font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.1em;margin-bottom:.5rem;text-transform:uppercase;">Your Commitment</div>
+      <div><strong style="color:var(--text);">${d.firstName} ${d.lastName}</strong></div>
+      <div>Good habits: ${d.goodHabits.filter(Boolean).join(', ')||'—'}</div>
+      <div>Overcoming: ${d.badHabits.filter(Boolean).join(', ')||'—'}</div>
+      <div>Strongholds: ${d.strongholds.filter(Boolean).join(', ')||'—'}</div>
+      ${S.notifEnabled?`<div style="color:var(--success);margin-top:.5rem;">🔔 Reminders at ${fmtTime(S.notifTime)}</div>`:''}
+    </div><div id="ol" style="display:none;" class="loader"><div class="spin"></div> Saving...</div>`;
+  }
+}
+
+async function enableNotifOnboard() {
+  const t=document.getElementById('ont').value;
+  const ok=await reqNotif();
+  const el=document.getElementById('ons');
+  if (ok) {
+    S.notifEnabled=true; S.notifTime=t;
+    localStorage.setItem('notifEnabled','true'); localStorage.setItem('notifTime',t);
+    if(el){el.textContent=`✓ Reminders set for ${fmtTime(t)} daily`;el.style.color='var(--success)';}
+    setTimeout(()=>{S.step++;renderStep();},1000);
+  } else {
+    if(el){el.textContent='Permission denied — enable in Settings later.';el.style.color='var(--red)';}
+    setTimeout(()=>{S.step++;renderStep();},1500);
+  }
+}
+
+function saveStep() {
+  const d=S.od;
+  if(S.step===0){d.firstName=document.getElementById('ff')?.value.trim()||d.firstName;d.lastName=document.getElementById('fl')?.value.trim()||d.lastName;d.phone=document.getElementById('fp')?.value.trim()||d.phone;d.email=document.getElementById('fe')?.value.trim()||d.email;}
+  else if(S.step===1) d.goodHabits=[0,1,2].map(i=>document.getElementById('gh'+i)?.value.trim()||'');
+  else if(S.step===2) d.badHabits=[0,1,2].map(i=>document.getElementById('bh'+i)?.value.trim()||'');
+  else if(S.step===3) d.strongholds=[0,1,2].map(i=>document.getElementById('sh'+i)?.value.trim()||'');
+}
+
+function onboardBack() { saveStep(); if(S.step===0){goTo('splash');return;} S.step--; renderStep(); }
+
+function onboardNext() {
+  saveStep();
+  if(S.step===0&&(!S.od.firstName||!S.od.email)){showToast('Missing Info','Please enter your name and email.');return;}
+  if(S.step===5){submitOnboard();return;}
+  S.step++; renderStep();
+}
+
+async function submitOnboard() {
+  const ol=document.getElementById('ol'); if(ol) ol.style.display='flex';
+  document.getElementById('bn').disabled=true;
+  try {
+    const r=await api('createUser',S.od);
+    if(r.success){S.user=r.user;initUI();goTo('main');if(S.notifEnabled)schedNotif(S.notifTime);showToast('Welcome!',`Journey begins today, ${S.od.firstName}!`);}
+    else showToast('Error',r.message||'Could not save. Try again.');
+  } catch(e){showToast('Error','Connection failed.');}
+  document.getElementById('bn').disabled=false;
+}
+
+// ── CHART ──────────────────────────────────────
+function renderChart() {
+  if(!S.user) return;
+  const today=new Date();
+  document.getElementById('cml').textContent=today.toLocaleString('default',{month:'long'}).toUpperCase()+' — 31 DAY CHALLENGE';
+  const vic=S.chart, days=Array.from({length:31},(_,i)=>i+1);
+  let rows=[`<tr><th class="rl">Category</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr>`];
+  CATS.forEach(c=>{rows.push(`<tr><td class="cl"><span class="cat-b">${c.key}</span>${c.label}</td>${days.map(day=>{const k=`${c.key}-${day}`;return`<td class="${vic[k]?'v':''}">${vic[k]?'V':''}</td>`;}).join('')}</tr>`);});
+  rows.push(`<tr class="sh-row"><td colspan="32">Developing Good Habits:</td></tr>`);
+  (S.user.goodHabits||[]).forEach((h,i)=>{if(!h)return;rows.push(`<tr><td class="cl" title="${h}">${i+1}. ${h}</td>${days.map(day=>{const k=`GH${i+1}-${day}`;return`<td class="${vic[k]?'v':''}">${vic[k]?'V':''}</td>`;}).join('')}</tr>`);});
+  rows.push(`<tr class="sh-row"><td colspan="32">Overcoming Bad Habits:</td></tr>`);
+  (S.user.badHabits||[]).forEach((h,i)=>{if(!h)return;rows.push(`<tr><td class="cl" title="${h}">${i+1}. ${h}</td>${days.map(day=>{const k=`BH${i+1}-${day}`;return`<td class="${vic[k]?'v':''}">${vic[k]?'V':''}</td>`;}).join('')}</tr>`);});
+  rows.push(`<tr class="sh-row"><td colspan="32">Breaking Strongholds: (Rev. 2:26)</td></tr>`);
+  (S.user.strongholds||[]).forEach((h,i)=>{if(!h)return;rows.push(`<tr><td class="cl" title="${h}">${i+1}. ${h}</td>${days.map(day=>{const k=`SH${i+1}-${day}`;return`<td class="${vic[k]?'v':''}">${vic[k]?'V':''}</td>`;}).join('')}</tr>`);});
+  document.getElementById('mc2').innerHTML=rows.join('');
+}
+
+// ── CHECK-IN ────────────────────────────────────
+function getDayNum() {
+  if(!S.user?.startDate) return 1;
+  const diff=Math.floor((new Date()-new Date(S.user.startDate))/86400000)+1;
+  return Math.min(Math.max(diff,1),31);
+}
+
+function renderCheckin() {
+  const wrap=document.getElementById('ciw'); if(!S.user){wrap.innerHTML='';return;}
+  const day=getDayNum(), today=new Date().toISOString().split('T')[0];
+  if(S.user.lastCheckin===today){
+    wrap.innerHTML=`<div class="ad"><div class="ci">✓</div><h3>Victory Recorded!</h3><p style="font-size:.85rem;margin-top:.5rem;">Check-in complete. Come back tomorrow!</p><p style="color:var(--gold);font-family:'Cinzel',serif;font-size:.8rem;margin-top:1rem;">Day ${day} of 31</p></div>`; return;
+  }
+  S.ans={};
+  const dateStr=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  let html=`<div class="cd">${dateStr}</div><div class="cdn">Day ${day} <span>/ 31</span></div><div class="cst">Core Disciplines (A–E)</div>`;
+  CATS.forEach(c=>{html+=qc(`${c.key}-${day}`,`<strong>${c.key}</strong> — Did you ${c.label.toLowerCase()}?`);});
+  html+=`<div class="cst">Good Habits</div>`;
+  (S.user.goodHabits||[]).forEach((h,i)=>{if(h)html+=qc(`GH${i+1}-${day}`,h);});
+  html+=`<div class="cst">Overcoming Bad Habits</div>`;
+  (S.user.badHabits||[]).forEach((h,i)=>{if(h)html+=qc(`BH${i+1}-${day}`,`Stayed free from: ${h}`);});
+  html+=`<div class="cst">Breaking Strongholds</div>`;
+  (S.user.strongholds||[]).forEach((h,i)=>{if(h)html+=qc(`SH${i+1}-${day}`,`Broke through: ${h}`);});
+  html+=`<button class="sub-btn" onclick="submitCI()">Record My Victories →</button><div id="sr2"></div><div style="height:2rem;"></div>`;
+  wrap.innerHTML=html;
+}
+
+function qc(key,label){return`<div class="qc"><div class="ql"><div class="qt">${label}</div></div><div class="tb"><button class="yes" id="by-${key}" onclick="setAns('${key}',true)">Yes</button><button class="no" id="bn2-${key}" onclick="setAns('${key}',false)">No</button></div></div>`;}
+function setAns(key,val){S.ans[key]=val;document.getElementById('by-'+key).classList.toggle('sel',val===true);document.getElementById('bn2-'+key).classList.toggle('sel',val===false);}
+
+async function submitCI() {
+  const u=S.user, day=getDayNum();
+  const exp=5+(u.goodHabits||[]).filter(Boolean).length+(u.badHabits||[]).filter(Boolean).length+(u.strongholds||[]).filter(Boolean).length;
+  if(Object.keys(S.ans).length<exp){showToast('Almost there!','Please answer all questions.');return;}
+  try {
+    const r=await api('submitCheckin',{email:u.email,day,answers:S.ans,date:new Date().toISOString().split('T')[0]});
+    if(r.success){
+      S.chart={...S.chart,...S.ans};
+      S.user.lastCheckin=new Date().toISOString().split('T')[0];
+      S.user.streak=(S.user.streak||0)+1;
+      localStorage.setItem('sbc_user',JSON.stringify(S.user));
+      renderChart();
+      const yc=CATS.filter(c=>S.ans[`${c.key}-${day}`]===true);
+      const slot=document.getElementById('sr2');
+      if(slot&&yc.length) slot.innerHTML=`<div class="scr"><h3>Today's Scriptures for Your Victories</h3><ul>${yc.map(c=>`<li><span class="sk">${c.key}</span><span class="st">${c.scr}</span></li>`).join('')}</ul></div>`;
+      document.querySelector('.sub-btn').style.display='none';
+      showToast('Victory!',`Day ${day} recorded!`);
+      setTimeout(()=>{renderCheckin();switchTab('chart');},4500);
+    }
+  } catch(e){showToast('Error','Could not save.');}
+}
+
+// ── COMMUNITY ───────────────────────────────────
+async function loadCommunity() {
+  const el=document.getElementById('cl2');
+  el.innerHTML='<div class="loader"><div class="spin"></div> Loading...</div>';
+  try {
+    const r=await api('getCommunity',{});
+    if(r.success&&r.members) renderCommunity(r.members);
+    else el.innerHTML='<div class="loader">No community data yet.</div>';
+  } catch(e){el.innerHTML='<div class="loader">Could not load.</div>';}
+}
+
+function renderCommunity(members) {
+  const el=document.getElementById('cl2');
+  if(!members.length){el.innerHTML='<div class="loader">No other members yet.</div>';return;}
+  el.innerHTML=members.map(m=>{
+    const init=((m.firstName||'?')[0]+(m.lastName||'?')[0]).toUpperCase();
+    const vic=m.victories||{};
+    const td=Object.keys(vic).length?Math.max(...Object.keys(vic).map(k=>parseInt(k.split('-')[1])||0)):0;
+    const cells=Array.from({length:31},(_,i)=>{const d=i+1,dv=Object.keys(vic).filter(k=>k.endsWith('-'+d)),y=dv.filter(k=>vic[k]).length;return`<div class="mic-cell ${y>=5?'done':y>0?'partial':''}"></div>`;}).join('');
+    return`<div class="mc"><div class="mch"><div class="mav">${init}</div><div><div class="mn">${m.firstName} ${m.lastName}</div><div class="ms">${m.streak||0} day streak · Day ${td} of 31</div></div></div><div class="mic">${cells}</div></div>`;
+  }).join('');
+}
+
+// ── PROFILE ─────────────────────────────────────
+function renderProfile() {
+  const el=document.getElementById('pd'); if(!el||!S.user) return;
+  const u=S.user;
+  el.innerHTML=`<div style="font-size:.82rem;color:var(--text-muted);line-height:2;">
+    <div><span style="color:var(--gold);font-weight:700;">Name: </span>${u.firstName} ${u.lastName}</div>
+    <div><span style="color:var(--gold);font-weight:700;">Email: </span>${u.email}</div>
+    <div><span style="color:var(--gold);font-weight:700;">Phone: </span>${u.phone||'—'}</div>
+    <div><span style="color:var(--gold);font-weight:700;">Started: </span>${u.startDate||'—'}</div>
+    <div><span style="color:var(--gold);font-weight:700;">Streak: </span>${u.streak||0} days</div>
+    <div><span style="color:var(--gold);font-weight:700;">Last Check-In: </span>${u.lastCheckin||'Not yet'}</div>
+  </div>`;
+}
+
+function confirmLogout() {
+  if(confirm('Sign out? Your progress is saved in Google Sheets.')) { localStorage.clear(); S.user=null; S.chart={}; goTo('splash'); }
+}
+
+// ── API ─────────────────────────────────────────
+function initUI() {
+  if(!S.user) return;
+  const init=((S.user.firstName||'?')[0]+(S.user.lastName||'?')[0]).toUpperCase();
+  document.getElementById('ua').textContent=init;
+}
+
+async function loadChart() {
+  try { const r=await api('getChartData',{email:S.user.email}); if(r.success){S.chart=r.data||{};renderChart();} } catch(e){}
+}
+
+async function api(action,payload) {
+  if(APPS_SCRIPT_URL==='YOUR_APPS_SCRIPT_URL_HERE') return mock(action,payload);
+  const r=await fetch(APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});
+  return r.json();
+}
+
+function mock(action,p) {
+  if(action==='createUser'){const u={...p,startDate:new Date().toISOString().split('T')[0],lastCheckin:null,streak:0};localStorage.setItem('sbc_user',JSON.stringify(u));S.user=u;return{success:true,user:u};}
+  if(action==='getUser'){const s=JSON.parse(localStorage.getItem('sbc_user')||'null');if(s&&s.email===p.email)return{success:true,user:s};return{success:false};}
+  if(action==='getChartData')return{success:true,data:JSON.parse(localStorage.getItem('sbc_chart')||'{}')};
+  if(action==='submitCheckin'){const e=JSON.parse(localStorage.getItem('sbc_chart')||'{}'),m={...e,...p.answers};localStorage.setItem('sbc_chart',JSON.stringify(m));const u=JSON.parse(localStorage.getItem('sbc_user')||'{}');u.lastCheckin=p.date;u.streak=(u.streak||0)+1;localStorage.setItem('sbc_user',JSON.stringify(u));S.user=u;S.chart=m;return{success:true};}
+  if(action==='getCommunity')return{success:true,members:[{firstName:'Maria',lastName:'G.',streak:7,victories:{'A-1':true,'B-1':true,'C-1':true,'D-1':false,'E-1':true,'A-2':true,'B-2':true,'A-3':true}},{firstName:'Carlos',lastName:'R.',streak:12,victories:{'A-1':true,'B-1':true,'C-1':true,'D-1':true,'E-1':true,'A-2':true,'B-2':true,'C-2':true,'D-2':true,'E-2':true,'A-3':false,'B-3':true}},{firstName:'Destiny',lastName:'M.',streak:3,victories:{'A-1':true,'B-1':false,'A-2':true,'A-3':true}}]};
+  return{success:false};
+}
+
+let tt;
+function showToast(title,msg){document.getElementById('ttt').textContent=title;document.getElementById('ttm').textContent=msg;const t=document.getElementById('toast');t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),4000);}
+
+window.onload=async function(){
+  await regSW();
+  const s=localStorage.getItem('sbc_user');
+  if(s){try{S.user=JSON.parse(s);const c=localStorage.getItem('sbc_chart');S.chart=c?JSON.parse(c):{};initUI();goTo('main');}catch(e){localStorage.clear();}}
+};
+</script>
+</body>
+</html>

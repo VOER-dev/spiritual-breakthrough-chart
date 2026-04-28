@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — Spiritual Breakthrough Chart</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1a2744;--navy-light:#243560;--gold:#c9a84c;--gold-light:#e8c97a;--bg:#0e1829;--surface:#162035;--surface2:#1e2d47;--text:#e8edf5;--text-muted:#8fa3b8;--success:#3dbd7a;--red:#e05252;--amber:#d4a843;--border:rgba(201,168,76,0.25);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at center,#1a2744 0%,#0e1829 70%);}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:2.5rem;width:100%;max-width:380px;text-align:center;}
+.login-logo{width:60px;height:60px;background:linear-gradient(145deg,var(--gold),var(--gold-light));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:1.4rem;font-weight:700;color:var(--navy);margin:0 auto 1.25rem;}
+.login-title{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold);margin-bottom:.25rem;letter-spacing:.1em;}
+.login-sub{font-size:.8rem;color:var(--text-muted);margin-bottom:2rem;}
+input[type=text],input[type=password]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Lato',sans-serif;font-size:.95rem;padding:.75rem 1rem;outline:none;margin-bottom:1rem;transition:border-color .2s;}
+input:focus{border-color:var(--gold);}
+.btn{display:block;width:100%;padding:.85rem;border-radius:4px;border:none;cursor:pointer;font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,.4);}
+#login-err{font-size:.78rem;color:var(--red);margin-top:.75rem;min-height:1rem;}
+
+/* DASHBOARD */
+#dashboard{display:none;}
+.sidebar{position:fixed;top:0;left:0;width:220px;height:100vh;background:var(--surface);border-right:1px solid var(--border);z-index:10;padding:1.5rem 0;}
+.sidebar-logo{display:flex;align-items:center;gap:.75rem;padding:0 1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem;}
+.s-logo-icon{width:36px;height:36px;background:linear-gradient(145deg,var(--gold),var(--gold-light));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-weight:700;font-size:.9rem;color:var(--navy);flex-shrink:0;}
+.s-logo-text{font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:.1em;line-height:1.4;}
+.nav-item{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.25rem;cursor:pointer;font-size:.82rem;color:var(--text-muted);transition:all .2s;border-left:3px solid transparent;}
+.nav-item:hover{color:var(--text);background:var(--surface2);}
+.nav-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,168,76,.07);}
+.nav-icon{font-size:1rem;width:20px;text-align:center;}
+.nav-divider{height:1px;background:var(--border);margin:.75rem 1.25rem;}
+.main-content{margin-left:220px;padding:2rem;min-height:100vh;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;}
+.page-title{font-family:'Cinzel',serif;font-size:1.3rem;color:var(--white);}
+.page-sub{font-size:.8rem;color:var(--text-muted);margin-top:.2rem;}
+.refresh-btn{background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text-muted);padding:.5rem 1rem;font-size:.78rem;cursor:pointer;font-family:'Lato',sans-serif;transition:all .2s;}
+.refresh-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:1.25rem;}
+.stat-label{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.5rem;}
+.stat-val{font-family:'Cinzel',serif;font-size:2rem;font-weight:700;color:var(--white);}
+.stat-sub{font-size:.72rem;color:var(--text-muted);margin-top:.25rem;}
+.stat-card.gold .stat-val{color:var(--gold);}
+.stat-card.green .stat-val{color:var(--success);}
+.stat-card.red .stat-val{color:var(--red);}
+
+/* SECTION */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:6px;margin-bottom:1.5rem;}
+.section-head{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.section-title{font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold);letter-spacing:.08em;}
+.section-body{padding:1.25rem;}
+
+/* MEMBERS TABLE */
+.members-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+.members-table th{text-align:left;padding:.6rem .75rem;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);}
+.members-table td{padding:.65rem .75rem;border-bottom:1px solid rgba(201,168,76,.1);vertical-align:middle;}
+.members-table tr:last-child td{border-bottom:none;}
+.members-table tr:hover td{background:var(--surface2);}
+.m-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--navy-light),var(--navy));border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.65rem;color:var(--gold);flex-shrink:0;}
+.m-name{font-weight:700;color:var(--white);}
+.m-email{font-size:.72rem;color:var(--text-muted);}
+.streak-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:3px;padding:.2rem .5rem;font-size:.7rem;color:var(--gold);font-weight:700;}
+.progress-bar-sm{height:5px;background:var(--surface2);border-radius:3px;width:80px;overflow:hidden;}
+.progress-fill-sm{height:5px;background:linear-gradient(90deg,var(--gold),var(--success));border-radius:3px;transition:width .3s;}
+.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;}
+.status-done{background:var(--success);}.status-pending{background:var(--amber);}.status-missed{background:var(--red);}
+
+/* MINI CHART */
+.mini-grid{display:grid;grid-template-columns:repeat(31,1fr);gap:1px;width:150px;}
+.mg-cell{height:7px;border-radius:1px;background:var(--surface2);}
+.mg-cell.done{background:var(--success);}.mg-cell.partial{background:var(--gold);opacity:.6;}
+
+/* MEMBER DETAIL MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:1rem;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:100%;max-width:760px;max-height:90vh;overflow-y:auto;}
+.modal-head{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);}
+.modal-close{background:transparent;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;line-height:1;}
+.modal-close:hover{color:var(--red);}
+.modal-body{padding:1.5rem;}
+.detail-chart-wrap{overflow-x:auto;}
+table.dc{border-collapse:collapse;font-size:.6rem;min-width:550px;width:100%;}
+.dc th{background:var(--navy);color:var(--gold);font-family:'Cinzel',serif;font-weight:600;padding:.35rem .15rem;text-align:center;border:1px solid var(--border);}
+.dc th.rl{text-align:left;padding-left:.5rem;min-width:100px;}
+.dc td{border:1px solid var(--border);text-align:center;padding:.3rem .1rem;width:20px;min-width:20px;color:var(--text-muted);}
+.dc td.cl{text-align:left;padding-left:.5rem;color:var(--text);white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;}
+.dc td.v{background:rgba(61,189,122,.15);color:var(--success);font-weight:700;}
+.dc-sh td{background:var(--surface2);color:var(--text-muted);font-style:italic;font-size:.55rem;text-transform:uppercase;letter-spacing:.08em;padding:.25rem .5rem;}
+
+/* TAB CONTENT */
+.content-page{display:none;}.content-page.active{display:block;}
+
+/* LOADER */
+.loader{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--text-muted);gap:.5rem;}
+.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* SEARCH */
+.search-bar{background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Lato',sans-serif;font-size:.85rem;padding:.6rem 1rem;outline:none;width:220px;transition:border-color .2s;}
+.search-bar:focus{border-color:var(--gold);}
+
+/* ALERT PANEL */
+.alert-list{display:flex;flex-direction:column;gap:.6rem;}
+.alert-item{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;background:var(--surface2);border-radius:4px;font-size:.82rem;}
+.alert-item.warn{border-left:3px solid var(--amber);}
+.alert-item.ok{border-left:3px solid var(--success);}
+.alert-item.crit{border-left:3px solid var(--red);}
+.alert-icon{font-size:1rem;flex-shrink:0;}
+.alert-text{flex:1;color:var(--text-muted);}
+.alert-text strong{color:var(--text);}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface2);border:1px solid var(--gold);border-radius:6px;padding:.85rem 1.5rem;font-size:.85rem;color:var(--text);z-index:999;transition:transform .3s ease,opacity .3s;transform:translateY(10px);opacity:0;max-width:300px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-title{font-family:'Cinzel',serif;color:var(--gold);font-size:.85rem;margin-bottom:.2rem;}
+
+@media(max-width:700px){.sidebar{display:none;}.main-content{margin-left:0;padding:1rem;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">V</div>
+    <div class="login-title">Admin Dashboard</div>
+    <div class="login-sub">Victory Outreach Eagle Rock — Breakthrough Chart</div>
+    <input type="text" id="au" placeholder="Admin Username" autocomplete="off">
+    <input type="password" id="ap" placeholder="Admin Password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn btn-gold" onclick="doLogin()">Sign In</button>
+    <div id="login-err"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="s-logo-icon">V</div>
+      <div class="s-logo-text">Breakthrough<br>Admin</div>
+    </div>
+    <div class="nav-item active" onclick="showPage('overview')"><span class="nav-icon">📊</span> Overview</div>
+    <div class="nav-item" onclick="showPage('members')"><span class="nav-icon">👥</span> All Members</div>
+    <div class="nav-item" onclick="showPage('alerts')"><span class="nav-icon">🔔</span> Alerts</div>
+    <div class="nav-divider"></div>
+    <div class="nav-item" onclick="adminLogout()"><span class="nav-icon">←</span> Sign Out</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <!-- OVERVIEW PAGE -->
+    <div id="page-overview" class="content-page active">
+      <div class="page-header">
+        <div><div class="page-title">Congregation Overview</div><div class="page-sub" id="last-updated">Loading...</div></div>
+        <button class="refresh-btn" onclick="loadAllData()">↻ Refresh</button>
+      </div>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card gold"><div class="stat-label">Total Members</div><div class="stat-val" id="s-total">—</div><div class="stat-sub">enrolled in challenge</div></div>
+        <div class="stat-card green"><div class="stat-label">Checked In Today</div><div class="stat-val" id="s-today">—</div><div class="stat-sub">out of <span id="s-total2">—</span></div></div>
+        <div class="stat-card"><div class="stat-label">Avg Streak</div><div class="stat-val" id="s-streak">—</div><div class="stat-sub">days</div></div>
+        <div class="stat-card red"><div class="stat-label">Need Attention</div><div class="stat-val" id="s-attn">—</div><div class="stat-sub">missed 3+ days</div></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">Today's Check-In Status</div>
+          <div style="font-size:.75rem;color:var(--text-muted);" id="today-date-label">—</div>
+        </div>
+        <div class="section-body">
+          <div id="today-list"><div class="loader"><div class="spin"></div> Loading...</div></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><div class="section-title">Top Performers — Longest Streaks</div></div>
+        <div class="section-body"><div id="top-list"></div></div>
+      </div>
+    </div>
+
+    <!-- MEMBERS PAGE -->
+    <div id="page-members" class="content-page">
+      <div class="page-header">
+        <div><div class="page-title">All Members</div><div class="page-sub">Click any member to view their full chart</div></div>
+        <input type="text" class="search-bar" id="search-bar" placeholder="Search by name..." oninput="filterMembers(this.value)">
+      </div>
+      <div class="section">
+        <div class="section-body" style="padding:0;">
+          <div id="members-table-wrap"><div class="loader"><div class="spin"></div> Loading...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTS PAGE -->
+    <div id="page-alerts" class="content-page">
+      <div class="page-header">
+        <div><div class="page-title">Member Alerts</div><div class="page-sub">Members who may need pastoral follow-up</div></div>
+      </div>
+      <div class="section">
+        <div class="section-head"><div class="section-title">Missing 3 or More Days</div></div>
+        <div class="section-body"><div id="alert-list" class="alert-list"></div></div>
+      </div>
+      <div class="section" style="margin-top:1.5rem;">
+        <div class="section-head"><div class="section-title">Completed 7 or More Days</div></div>
+        <div class="section-body"><div id="praise-list" class="alert-list"></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MEMBER DETAIL MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-name">Member Chart</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><div class="toast-title" id="tt"></div><div id="tm"></div></div>
+
+<script>
+// ═══════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════
+const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+// CHANGE THESE CREDENTIALS
+// For production, move auth to the Apps Script backend
+const ADMIN_USER = 'pastor';
+const ADMIN_PASS = 'voer2026';
+
+const CATS = [
+  {key:'A',label:'Prayer'},{key:'B',label:"God's Word"},
+  {key:'C',label:'Fasting'},{key:'D',label:'Giving'},{key:'E',label:'Attend Church'},
+];
+
+let allMembers = [];
+let allCheckins = [];
+
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+function doLogin() {
+  const u=document.getElementById('au').value.trim();
+  const p=document.getElementById('ap').value;
+  if (u===ADMIN_USER && p===ADMIN_PASS) {
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    loadAllData();
+  } else {
+    document.getElementById('login-err').textContent='Invalid username or password.';
+    setTimeout(()=>document.getElementById('login-err').textContent='', 3000);
+  }
+}
+
+function adminLogout() {
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('au').value='';
+  document.getElementById('ap').value='';
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.content-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// DATA LOADING
+// ═══════════════════════════════════════
+async function loadAllData() {
+  document.getElementById('last-updated').textContent='Loading...';
+  try {
+    const res = await api('getAdminData', {});
+    if (res.success) {
+      allMembers = res.members || [];
+      allCheckins = res.checkins || [];
+      renderOverview();
+      renderMembersTable(allMembers);
+      renderAlerts();
+      document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+    } else {
+      // Demo mode
+      loadDemoData();
+    }
+  } catch(e) { loadDemoData(); }
+}
+
+function loadDemoData() {
+  allMembers = [
+    {firstName:'Maria',lastName:'Garcia',email:'maria@example.com',phone:'714-555-0001',startDate:'2026-04-01',lastCheckin:new Date().toISOString().split('T')[0],streak:14,goodHabits:['Morning prayer','Bible study','Exercise'],badHabits:['Social media','Late nights',''],strongholds:['Anxiety','Fear','']},
+    {firstName:'Carlos',lastName:'Rodriguez',email:'carlos@example.com',phone:'714-555-0002',startDate:'2026-04-01',lastCheckin:new Date().toISOString().split('T')[0],streak:14,goodHabits:['Prayer journal','Fasting Wednesdays',''],badHabits:['Negative talk','',''],strongholds:['Anger','','']},
+    {firstName:'Destiny',lastName:'Martinez',email:'destiny@example.com',phone:'714-555-0003',startDate:'2026-04-01',lastCheckin:'2026-04-22',streak:3,goodHabits:['Worship','',''],badHabits:['','',''],strongholds:['Doubt','','']},
+    {firstName:'James',lastName:'Wilson',email:'james@example.com',phone:'714-555-0004',startDate:'2026-04-01',lastCheckin:'2026-04-19',streak:1,goodHabits:['Prayer','',''],badHabits:['','',''],strongholds:['','','']},
+    {firstName:'Priscilla',lastName:'Reyes',email:'priscilla@example.com',phone:'714-555-0005',startDate:'2026-04-05',lastCheckin:new Date().toISOString().split('T')[0],streak:9,goodHabits:['Intercession','Church attendance',''],badHabits:['Gossip','',''],strongholds:['Pride','','']},
+    {firstName:'David',lastName:'Torres',email:'david@example.com',phone:'714-555-0006',startDate:'2026-04-01',lastCheckin:'2026-04-15',streak:0,goodHabits:['','',''],badHabits:['','',''],strongholds:['','','']},
+  ];
+  // Generate fake victory data
+  allCheckins = [];
+  allMembers.forEach(m => {
+    const streak = m.streak || 0;
+    for (let day=1;day<=streak;day++) {
+      allCheckins.push({email:m.email,day,A:'Y',B:'Y',C: day%3===0?'N':'Y',D:'Y',E:day%7===0?'N':'Y',GH1:'Y',GH2:'Y',GH3:'Y',BH1:'Y',BH2:'Y',BH3:'Y',SH1:'Y',SH2:'Y',SH3:'Y'});
+    }
+  });
+  renderOverview();
+  renderMembersTable(allMembers);
+  renderAlerts();
+  document.getElementById('last-updated').textContent = 'Demo mode — replace APPS_SCRIPT_URL to use live data';
+}
+
+// ═══════════════════════════════════════
+// OVERVIEW
+// ═══════════════════════════════════════
+function renderOverview() {
+  const today = new Date().toISOString().split('T')[0];
+  const total = allMembers.length;
+  const checkedToday = allMembers.filter(m => m.lastCheckin === today).length;
+  const avgStreak = total ? Math.round(allMembers.reduce((a,m)=>a+(m.streak||0),0)/total) : 0;
+  const needAttn = allMembers.filter(m => {
+    if (!m.startDate) return false;
+    const daysSinceStart = Math.floor((new Date()-new Date(m.startDate))/86400000);
+    const daysSinceCheckin = m.lastCheckin ? Math.floor((new Date()-new Date(m.lastCheckin))/86400000) : daysSinceStart;
+    return daysSinceCheckin >= 3 && daysSinceStart >= 3;
+  }).length;
+
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-today').textContent = checkedToday;
+  document.getElementById('s-total2').textContent = total;
+  document.getElementById('s-streak').textContent = avgStreak;
+  document.getElementById('s-attn').textContent = needAttn;
+  document.getElementById('today-date-label').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+
+  // Today status list
+  const todayList = document.getElementById('today-list');
+  const rows = allMembers.map(m => {
+    const done = m.lastCheckin === today;
+    const daysSince = m.lastCheckin ? Math.floor((new Date()-new Date(m.lastCheckin))/86400000) : 99;
+    const statusClass = done ? 'status-done' : daysSince <= 1 ? 'status-pending' : 'status-missed';
+    const statusText = done ? 'Checked in' : daysSince <= 1 ? 'Yesterday' : `${daysSince} days ago`;
+    const init = (m.firstName[0]+(m.lastName||'?')[0]).toUpperCase();
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:.6rem;">
+        <div class="m-avatar">${init}</div>
+        <div><div class="m-name">${m.firstName} ${m.lastName}</div></div>
+      </div></td>
+      <td><span class="status-dot ${statusClass}"></span>${statusText}</td>
+      <td><span class="streak-badge">🔥 ${m.streak||0}</span></td>
+      <td><div style="display:flex;align-items:center;gap:.5rem;">
+        <div class="progress-bar-sm"><div class="progress-fill-sm" style="width:${Math.min(((m.streak||0)/31)*100,100)}%"></div></div>
+        <span style="font-size:.7rem;color:var(--text-muted);">${Math.min(m.streak||0,31)}/31</span>
+      </div></td>
+    </tr>`;
+  }).join('');
+  todayList.innerHTML = `<table class="members-table"><thead><tr><th>Member</th><th>Today's Status</th><th>Streak</th><th>Progress</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+  // Top performers
+  const sorted = [...allMembers].sort((a,b)=>(b.streak||0)-(a.streak||0)).slice(0,5);
+  document.getElementById('top-list').innerHTML = sorted.map((m,i) => {
+    const init = (m.firstName[0]+(m.lastName||'?')[0]).toUpperCase();
+    const medals = ['🥇','🥈','🥉','4.','5.'];
+    return `<div style="display:flex;align-items:center;gap:.75rem;padding:.65rem 0;border-bottom:1px solid rgba(201,168,76,.1);">
+      <div style="font-size:1.1rem;width:28px;text-align:center;">${medals[i]}</div>
+      <div class="m-avatar">${init}</div>
+      <div style="flex:1;"><div class="m-name">${m.firstName} ${m.lastName}</div></div>
+      <span class="streak-badge">🔥 ${m.streak||0} days</span>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// MEMBERS TABLE
+// ═══════════════════════════════════════
+function renderMembersTable(members) {
+  const today = new Date().toISOString().split('T')[0];
+  const rows = members.map(m => {
+    const init = (m.firstName[0]+(m.lastName||'?')[0]).toUpperCase();
+    const done = m.lastCheckin === today;
+    const daysSince = m.lastCheckin ? Math.floor((new Date()-new Date(m.lastCheckin))/86400000) : 99;
+    const sc = done ? 'status-done' : daysSince<=1 ? 'status-pending' : 'status-missed';
+
+    const myCheckins = allCheckins.filter(c=>c.email===m.email);
+    const vic = {};
+    myCheckins.forEach(row => { const d=row.day; ['A','B','C','D','E','GH1','GH2','GH3','BH1','BH2','BH3','SH1','SH2','SH3'].forEach(k=>{ vic[`${k}-${d}`]=row[k]==='Y'; }); });
+
+    const cells = Array.from({length:31},(_,i)=>{
+      const d=i+1, dv=Object.keys(vic).filter(k=>k.endsWith('-'+d)), y=dv.filter(k=>vic[k]).length;
+      return `<div class="mg-cell ${y>=5?'done':y>0?'partial':''}"></div>`;
+    }).join('');
+
+    return `<tr onclick="openMemberModal('${m.email}')" style="cursor:pointer;">
+      <td><div style="display:flex;align-items:center;gap:.6rem;">
+        <div class="m-avatar">${init}</div>
+        <div><div class="m-name">${m.firstName} ${m.lastName}</div><div class="m-email">${m.email}</div></div>
+      </div></td>
+      <td>${m.phone||'—'}</td>
+      <td><span class="status-dot ${sc}"></span>${done?'Today':m.lastCheckin||'Never'}</td>
+      <td><span class="streak-badge">🔥 ${m.streak||0}</span></td>
+      <td><div class="mini-grid">${cells}</div></td>
+      <td><button onclick="event.stopPropagation();openMemberModal('${m.email}')" style="background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--gold);font-size:.7rem;padding:.3rem .6rem;cursor:pointer;font-family:'Lato',sans-serif;">View Chart</button></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('members-table-wrap').innerHTML = `
+    <table class="members-table">
+      <thead><tr><th>Member</th><th>Phone</th><th>Last Check-In</th><th>Streak</th><th>31-Day Progress</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function filterMembers(q) {
+  const filtered = allMembers.filter(m =>
+    `${m.firstName} ${m.lastName}`.toLowerCase().includes(q.toLowerCase()) ||
+    m.email?.toLowerCase().includes(q.toLowerCase())
+  );
+  renderMembersTable(filtered);
+}
+
+// ═══════════════════════════════════════
+// MEMBER DETAIL MODAL
+// ═══════════════════════════════════════
+function openMemberModal(email) {
+  const m = allMembers.find(x=>x.email===email);
+  if (!m) return;
+  document.getElementById('modal-name').textContent = `${m.firstName} ${m.lastName} — Breakthrough Chart`;
+
+  const myCheckins = allCheckins.filter(c=>c.email===email);
+  const vic = {};
+  myCheckins.forEach(row => {
+    const d=row.day;
+    ['A','B','C','D','E','GH1','GH2','GH3','BH1','BH2','BH3','SH1','SH2','SH3'].forEach(k=>{ vic[`${k}-${d}`]=row[k]==='Y'; });
+  });
+
+  const days = Array.from({length:31},(_,i)=>i+1);
+  let rows = [`<tr><th class="rl">Category</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr>`];
+
+  CATS.forEach(c=>{rows.push(`<tr><td class="cl">${c.key} — ${c.label}</td>${days.map(day=>{const k=`${c.key}-${day}`;return`<td class="${vic[k]?'v':''}">${vic[k]?'V':''}</td>`;}).join('')}</tr>`);});
+  rows.push(`<tr class="dc-sh"><td colspan="32">Good Habits</td></tr>`);
+  (m.goodHabits||[]).forEach((h,i)=>{if(!h)return;rows.push(`<tr><td class="cl" title="${h}">${i+1}. ${h}</td>${days.map(day=>{const k=`GH${i+1}-${day}`;return`<td class="${vic[k]?'v':''}">${vic[k]?'V':''}</td>`;}).join('')}</tr>`);});
+  rows.push(`<tr class="dc-sh"><td colspan="32">Bad Habits</td></tr>`);
+  (m.badHabits||[]).forEach((h,i)=>{if(!h)return;rows.push(`<tr><td class="cl" title="${h}">${i+1}. ${h}</td>${days.map(day=>{const k=`BH${i+1}-${day}`;return`<td class="${vic[k]?'v':''}">${vic[k]?'V':''}</td>`;}).join('')}</tr>`);});
+  rows.push(`<tr class="dc-sh"><td colspan="32">Strongholds (Rev 2:26)</td></tr>`);
+  (m.strongholds||[]).forEach((h,i)=>{if(!h)return;rows.push(`<tr><td class="cl" title="${h}">${i+1}. ${h}</td>${days.map(day=>{const k=`SH${i+1}-${day}`;return`<td class="${vic[k]?'v':''}">${vic[k]?'V':''}</td>`;}).join('')}</tr>`);});
+
+  const totalV = Object.values(vic).filter(Boolean).length;
+  const daysDone = myCheckins.length;
+
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+      <div style="background:var(--surface2);border-radius:4px;padding:.75rem 1.25rem;min-width:100px;text-align:center;">
+        <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:.3rem;">Streak</div>
+        <div style="font-family:'Cinzel',serif;font-size:1.4rem;color:var(--gold);">${m.streak||0}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:4px;padding:.75rem 1.25rem;min-width:100px;text-align:center;">
+        <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:.3rem;">Days Checked</div>
+        <div style="font-family:'Cinzel',serif;font-size:1.4rem;color:var(--white);">${daysDone}/31</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:4px;padding:.75rem 1.25rem;min-width:100px;text-align:center;">
+        <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:.3rem;">Total Victories</div>
+        <div style="font-family:'Cinzel',serif;font-size:1.4rem;color:var(--success);">${totalV}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:4px;padding:.75rem 1.25rem;min-width:120px;text-align:center;">
+        <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:.3rem;">Phone</div>
+        <div style="font-size:.85rem;color:var(--text);">${m.phone||'—'}</div>
+      </div>
+    </div>
+    <div class="detail-chart-wrap"><table class="dc">${rows.join('')}</table></div>`;
+
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
+
+// ═══════════════════════════════════════
+// ALERTS
+// ═══════════════════════════════════════
+function renderAlerts() {
+  const today = new Date().toISOString().split('T')[0];
+  const alertList = document.getElementById('alert-list');
+  const praiseList = document.getElementById('praise-list');
+
+  const attn = allMembers.filter(m => {
+    const daysSince = m.lastCheckin ? Math.floor((new Date()-new Date(m.lastCheckin))/86400000) : 99;
+    const daysSinceStart = m.startDate ? Math.floor((new Date()-new Date(m.startDate))/86400000) : 0;
+    return daysSince >= 3 && daysSinceStart >= 3;
+  });
+
+  const praise = allMembers.filter(m => (m.streak||0) >= 7);
+
+  alertList.innerHTML = attn.length ? attn.map(m => {
+    const daysSince = m.lastCheckin ? Math.floor((new Date()-new Date(m.lastCheckin))/86400000) : 99;
+    const cls = daysSince >= 7 ? 'crit' : 'warn';
+    return `<div class="alert-item ${cls}">
+      <div class="alert-icon">${daysSince>=7?'🚨':'⚠️'}</div>
+      <div class="alert-text"><strong>${m.firstName} ${m.lastName}</strong> — last checked in ${daysSince>=99?'never':`${daysSince} days ago`}. Consider reaching out at ${m.phone||m.email}.</div>
+    </div>`;
+  }).join('') : '<div style="color:var(--success);font-size:.85rem;">All members are on track!</div>';
+
+  praiseList.innerHTML = praise.length ? praise.map(m => `
+    <div class="alert-item ok">
+      <div class="alert-icon">🏆</div>
+      <div class="alert-text"><strong>${m.firstName} ${m.lastName}</strong> — ${m.streak} day streak! Consider celebrating this publicly.</div>
+    </div>`).join('') : '<div style="color:var(--text-muted);font-size:.85rem;">No members have reached 7 days yet.</div>';
+}
+
+// ═══════════════════════════════════════
+// API
+// ═══════════════════════════════════════
+async function api(action, payload) {
+  if (APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return {success:false};
+  const r = await fetch(APPS_SCRIPT_URL, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});
+  return r.json();
+}
+
+let tt;
+function showToast(title,msg){document.getElementById('tt').textContent=title;document.getElementById('tm').textContent=msg;const t=document.getElementById('toast');t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),4000);}
+
+document.getElementById('ap').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+</script>
+</body>
+</html>
