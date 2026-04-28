@@ -237,7 +237,7 @@ table.dc{border-collapse:collapse;font-size:.6rem;min-width:550px;width:100%;}
 // ═══════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwK1yBakBMvuvSvCDIXLLxqJsoTJtIl1YunqqXkgQBrFCNNtHzBDeuTljpy-PiRabii/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfEkwKRLvEZ9KPVw95IZTqqLGwlHOKZCXMyjD2W8RvaNVKBONW1cH9rMg8UgVq4X5vtQ/exec';
 
 // CHANGE THESE CREDENTIALS
 // For production, move auth to the Apps Script backend
@@ -303,17 +303,15 @@ async function loadAllData() {
       // Demo mode
       loadDemoData();
     }
-  } catch(e) { loadDemoData(); }
+  } catch(e) {
+    document.getElementById('last-updated').textContent = 'Error loading data — check your Apps Script URL';
+    console.error(e);
+  }
 }
 
 function loadDemoData() {
   allMembers = [
-    {firstName:'Maria',lastName:'Garcia',email:'maria@example.com',phone:'714-555-0001',startDate:'2026-04-01',lastCheckin:new Date().toISOString().split('T')[0],streak:14,goodHabits:['Morning prayer','Bible study','Exercise'],badHabits:['Social media','Late nights',''],strongholds:['Anxiety','Fear','']},
-    {firstName:'Carlos',lastName:'Rodriguez',email:'carlos@example.com',phone:'714-555-0002',startDate:'2026-04-01',lastCheckin:new Date().toISOString().split('T')[0],streak:14,goodHabits:['Prayer journal','Fasting Wednesdays',''],badHabits:['Negative talk','',''],strongholds:['Anger','','']},
-    {firstName:'Destiny',lastName:'Martinez',email:'destiny@example.com',phone:'714-555-0003',startDate:'2026-04-01',lastCheckin:'2026-04-22',streak:3,goodHabits:['Worship','',''],badHabits:['','',''],strongholds:['Doubt','','']},
-    {firstName:'James',lastName:'Wilson',email:'james@example.com',phone:'714-555-0004',startDate:'2026-04-01',lastCheckin:'2026-04-19',streak:1,goodHabits:['Prayer','',''],badHabits:['','',''],strongholds:['','','']},
-    {firstName:'Priscilla',lastName:'Reyes',email:'priscilla@example.com',phone:'714-555-0005',startDate:'2026-04-05',lastCheckin:new Date().toISOString().split('T')[0],streak:9,goodHabits:['Intercession','Church attendance',''],badHabits:['Gossip','',''],strongholds:['Pride','','']},
-    {firstName:'David',lastName:'Torres',email:'david@example.com',phone:'714-555-0006',startDate:'2026-04-01',lastCheckin:'2026-04-15',streak:0,goodHabits:['','',''],badHabits:['','',''],strongholds:['','','']},
+    
   ];
   // Generate fake victory data
   allCheckins = [];
@@ -326,7 +324,7 @@ function loadDemoData() {
   renderOverview();
   renderMembersTable(allMembers);
   renderAlerts();
-  document.getElementById('last-updated').textContent = 'Demo mode — replace APPS_SCRIPT_URL to use live data';
+  document.getElementById('last-updated').textContent = 'Connected to Google Sheets — live data loaded';
 }
 
 // ═══════════════════════════════════════
@@ -528,7 +526,7 @@ function renderAlerts() {
 // ═══════════════════════════════════════
 async function api(action, payload) {
   if (APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return {success:false};
-  const r = await fetch(APPS_SCRIPT_URL, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});
+  const r = await fetch(APPS_SCRIPT_URL, {method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,...payload})});
   return r.json();
 }
 
