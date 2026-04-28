@@ -1,15 +1,23 @@
 // ═══════════════════════════════════════════════════════
 // SERVICE WORKER — Spiritual Breakthrough Chart
-// Handles push notifications + offline caching
+// Victory Outreach Church of Eagle Rock
 // ═══════════════════════════════════════════════════════
 
-const CACHE_NAME = 'sbc-v1';
-const ASSETS = ['/', '/index.html'];
+// Bump this any time you update your files to clear old cache
+const CACHE_NAME = 'sbc-v2';
+
+const ASSETS = [
+  './index.html',
+  './admin.html',
+  './manifest.json',
+];
 
 // ── INSTALL ──────────────────────────────────────────
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(ASSETS))
+      .catch(err => console.log('SW cache failed:', err))
   );
   self.skipWaiting();
 });
@@ -24,31 +32,29 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// ── FETCH (offline support) ───────────────────────────
+// ── FETCH (offline) ───────────────────────────────────
+// Skip caching Apps Script API — always needs to be live
 self.addEventListener('fetch', e => {
-  e.respondWith(
-    fetch(e.request).catch(() => caches.match(e.request))
-  );
+  if (e.request.url.includes('script.google.com')) return;
+  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });
 
 // ── PUSH NOTIFICATION ────────────────────────────────
 self.addEventListener('push', e => {
-  let data = { title: 'Spiritual Breakthrough', body: "Time for your daily check-in! Don't miss today's victory." };
+  let data = { title: 'Spiritual Breakthrough Chart', body: "Don't miss today's victory — tap to check in!" };
   try { data = e.data.json(); } catch(_) {}
-
   e.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: '/icon-192.png',
-      badge: '/icon-96.png',
-      tag: 'daily-checkin',
+      icon: './icon-192.png',
+      tag: 'sbc-daily',
       renotify: true,
       requireInteraction: false,
       actions: [
         { action: 'checkin', title: 'Check In Now' },
-        { action: 'later', title: 'Remind Me Later' }
+        { action: 'later',   title: 'Remind Me Later' }
       ],
-      data: { url: '/index.html#checkin' }
+      data: { url: './index.html' }
     })
   );
 });
@@ -56,10 +62,8 @@ self.addEventListener('push', e => {
 // ── NOTIFICATION CLICK ───────────────────────────────
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  const url = e.notification.data?.url || '/index.html';
 
   if (e.action === 'later') {
-    // Re-schedule in 1 hour via setTimeout in client
     e.waitUntil(
       self.clients.matchAll({ type: 'window' }).then(clients => {
         if (clients.length) clients[0].postMessage({ type: 'snooze' });
@@ -68,20 +72,17 @@ self.addEventListener('notificationclick', e => {
     return;
   }
 
+  const targetUrl = e.notification.data?.url || './index.html';
   e.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
       const existing = clients.find(c => c.url.includes('index.html'));
-      if (existing) { existing.focus(); existing.navigate(url); }
-      else self.clients.openWindow(url);
+      if (existing) { existing.focus(); return; }
+      self.clients.openWindow(targetUrl);
     })
   );
 });
 
-// ── SCHEDULED NOTIFICATION (via postMessage from app) ─
+// ── MESSAGE FROM APP ──────────────────────────────────
 self.addEventListener('message', e => {
-  if (e.data?.type === 'scheduleDaily') {
-    // This is handled by the app's JS scheduler
-    // SW just responds to confirm receipt
-    e.source?.postMessage({ type: 'scheduled', time: e.data.time });
-  }
+  if (e.data?.type === 'skipWaiting') self.skipWaiting();
 });
