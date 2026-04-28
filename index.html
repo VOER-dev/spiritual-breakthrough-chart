@@ -301,7 +301,7 @@ input:checked+.t-slider:before{transform:translateX(19px);background:var(--navy)
    Replace with your deployed Apps Script Web App URL.
    Leave as-is to run in offline demo mode.
 ─────────────────────────────────────────────────────── */
-const API_URL = 'https://script.google.com/macros/s/AKfycbwK1yBakBMvuvSvCDIXLLxqJsoTJtIl1YunqqXkgQBrFCNNtHzBDeuTljpy-PiRabii/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyfEkwKRLvEZ9KPVw95IZTqqLGwlHOKZCXMyjD2W8RvaNVKBONW1cH9rMg8UgVq4X5vtQ/exec';
 
 /* ── CONSTANTS ──────────────────────────────────────────── */
 const CATS = [
@@ -902,19 +902,19 @@ function syncNotifUI() {
 ════════════════════════════════════════════════════════ */
 async function apiCall(action, payload) {
   if (API_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
-    return localDB(action, payload);
+    return { success: false, message: e.toString() };
   }
   try {
     const res = await fetch(API_URL, {
       method : 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body   : JSON.stringify({ action, ...payload }),
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return await res.json();
   } catch(e) {
-    console.warn('API failed, falling back to local:', e);
-    return localDB(action, payload);
+    console.error('API error:', e);
+    return { success: false, message: e.toString() };
   }
 }
 
@@ -958,12 +958,7 @@ function localDB(action, p) {
   }
 
   if (action === 'getCommunity') {
-    // demo members
-    return { success: true, members: [
-      { firstName:'Maria',   lastName:'G.', streak:14, victories:{'A-1':true,'B-1':true,'C-1':true,'D-1':true,'E-1':true,'A-2':true,'B-2':true,'C-2':false,'D-2':true,'E-2':true} },
-      { firstName:'Carlos',  lastName:'R.', streak:9,  victories:{'A-1':true,'B-1':true,'C-1':false,'D-1':true,'E-1':true,'A-2':true,'B-2':true} },
-      { firstName:'Destiny', lastName:'M.', streak:3,  victories:{'A-1':true,'B-1':false,'A-2':true,'A-3':true} },
-    ]};
+    return { success: true, members: [] };
   }
 
   return { success: false, message: 'Unknown action' };
