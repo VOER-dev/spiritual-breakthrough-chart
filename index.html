@@ -305,10 +305,10 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbyfEkwKRLvEZ9KPVw95IZTq
 
 /* ── CONSTANTS ──────────────────────────────────────────── */
 const CATS = [
-  { key:'A', label:'Pray',        scr:'Philippians 4:6 / James 5:16'      },
-  { key:'B', label:"Read God's Word",    scr:'Matthew 4:4 / Joshua 1:8'          },
-  { key:'C', label:'Fast',       scr:'Isaiah 58:6 / Matthew 17:21'       },
-  { key:'D', label:'Give',        scr:'Matthew 6:19-21 / 1 Tim. 6:10'     },
+  { key:'A', label:'Prayer',        scr:'Philippians 4:6 / James 5:16'      },
+  { key:'B', label:"God's Word",    scr:'Matthew 4:4 / Joshua 1:8'          },
+  { key:'C', label:'Fasting',       scr:'Isaiah 58:6 / Matthew 17:21'       },
+  { key:'D', label:'Giving',        scr:'Matthew 6:19-21 / 1 Tim. 6:10'     },
   { key:'E', label:'Attend Church', scr:'Hebrews 10:25 / Acts 2:46,47'      },
 ];
 
@@ -530,8 +530,8 @@ function bootMainApp() {
   if (!app.user) return;
   const initials = ((app.user.firstName||'U')[0] + (app.user.lastName||'S')[0]).toUpperCase();
   document.getElementById('app-avatar').textContent = initials;
-  // save locally for auto-login
-  localStorage.setItem('sbc_user', JSON.stringify(app.user));
+  // Save to BOTH localStorage AND cookie for maximum persistence
+  persistLogin(app.user, app.chartData);
   showScreen('main');
   renderChart();
   renderCheckin();
@@ -702,8 +702,8 @@ async function submitCheckin() {
       Object.assign(app.chartData, app.answers);
       app.user.lastCheckin = today;
       app.user.streak = (app.user.streak || 0) + 1;
-      localStorage.setItem('sbc_user', JSON.stringify(app.user));
-      localStorage.setItem('sbc_chart', JSON.stringify(app.chartData));
+      // Persist updated user + chart to localStorage AND cookie
+      persistLogin(app.user, app.chartData);
       renderChart();
 
       // show scripture reveal for YES answers
@@ -792,7 +792,8 @@ function renderProfile() {
 function signOut() {
   if (!confirm('Sign out? Your progress is saved in Google Sheets.')) return;
   clearSchedule();
-  localStorage.clear();
+  // Clear BOTH localStorage AND cookie
+  clearPersistedLogin();
   app.user = null; app.chartData = {};
   showScreen('splash');
 }
@@ -991,19 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Wire splash buttons
   document.getElementById('btn-begin').addEventListener('click', startOnboard);
-  document.getElementById('btn-login').addEventListener('click', async () => {
-    const email = prompt('Enter your email address:');
-    if (!email) return;
-    const res = await apiCall('getUser', { email });
-    if (res.success && res.user) {
-      app.user = res.user;
-      const chart = await apiCall('getChartData', { email });
-      app.chartData = chart.success ? (chart.data || {}) : {};
-      bootMainApp();
-    } else {
-      toast('Not Found', 'No account found. Please create one.');
-    }
-  });
+  document.getElementById('btn-login').addEventListener('click', handleLogin);
 
   // Wire onboard buttons
   document.getElementById('ob-next').addEventListener('click', nextStep);
@@ -1017,24 +1006,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Wire avatar → settings
   document.getElementById('app-avatar').addEventListener('click', () => showPane('settings'));
 
-  // Auto-login from localStorage
-  const saved = localStorage.getItem('sbc_user');
-  if (saved) {
-    try {
-      app.user = JSON.parse(saved);
-      const savedChart = localStorage.getItem('sbc_chart');
-      app.chartData = savedChart ? JSON.parse(savedChart) : {};
-      // Refresh from server silently
-      if (API_URL !== 'YOUR_APPS_SCRIPT_URL_HERE') {
-        apiCall('getChartData', { email: app.user.email }).then(r => {
-          if (r.success) { app.chartData = r.data || {}; renderChart(); }
-        }).catch(() => {});
-      }
-      bootMainApp();
-    } catch(e) {
-      localStorage.clear();
-    }
-  }
+  // ── PERSISTENT LOGIN ──────────────────────────────────────
+  // 1. Try localStorage first (fastest — instant load)
+  // 2. Fall back to cookie if localStorage was cleared
+  // 3. Fall back to Google Sheets if both are gone
+  // This keeps users logged in even if Safari clears storage
+  // ──────────────────────────────────────────────────────────
+  autoLogin();
 
   // Restore notification schedule
   syncNotifUI();
@@ -1044,6 +1022,134 @@ document.addEventListener('DOMContentLoaded', () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 });
+
+/* ════════════════════════════════════════════════════════
+   PERSISTENT LOGIN
+   Keeps users logged in across all scenarios:
+   - Normal return visit           → localStorage (instant)
+   - Safari cleared localStorage  → cookie fallback
+   - Cookie also cleared           → re-fetch from Google Sheets
+   - Completely new device         → must sign in manually
+════════════════════════════════════════════════════════ */
+
+// Save login to BOTH localStorage and a 1-year cookie
+function persistLogin(user, chartData) {
+  // localStorage — fast, instant load
+  localStorage.setItem('sbc_user',  JSON.stringify(user));
+  localStorage.setItem('sbc_chart', JSON.stringify(chartData || {}));
+  // Cookie — survives localStorage being cleared (e.g. Safari ITP)
+  // Expires in 365 days
+  const expires = new Date();
+  expires.setFullYear(expires.getFullYear() + 1);
+  document.cookie = `sbc_email=${encodeURIComponent(user.email)}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+}
+
+// Read the saved email from cookie
+function getCookieEmail() {
+  const match = document.cookie.match(/sbc_email=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+// Clear all saved login data on sign out
+function clearPersistedLogin() {
+  localStorage.removeItem('sbc_user');
+  localStorage.removeItem('sbc_chart');
+  // Expire the cookie immediately
+  document.cookie = 'sbc_email=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+}
+
+// Main auto-login logic — runs on every page load
+async function autoLogin() {
+  // ── STEP 1: Try localStorage (instant, no network needed) ──
+  const savedUser  = localStorage.getItem('sbc_user');
+  const savedChart = localStorage.getItem('sbc_chart');
+
+  if (savedUser) {
+    try {
+      app.user      = JSON.parse(savedUser);
+      app.chartData = savedChart ? JSON.parse(savedChart) : {};
+      bootMainApp();
+      // Silently refresh chart data from server in background
+      apiCall('getChartData', { email: app.user.email }).then(r => {
+        if (r.success) {
+          app.chartData = r.data || {};
+          localStorage.setItem('sbc_chart', JSON.stringify(app.chartData));
+          renderChart();
+        }
+      }).catch(() => {});
+      return; // done — user is in
+    } catch(e) {
+      localStorage.removeItem('sbc_user');
+      localStorage.removeItem('sbc_chart');
+    }
+  }
+
+  // ── STEP 2: localStorage was empty — try cookie ──
+  const cookieEmail = getCookieEmail();
+  if (cookieEmail) {
+    // Show a subtle loading indicator while we re-fetch from Sheets
+    document.getElementById('splash').innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:1rem;">
+        <div class="logo-circle">V</div>
+        <div style="font-family:'Cinzel',serif;font-size:.78rem;color:var(--gold);letter-spacing:.15em;">Signing you back in…</div>
+        <div class="loader"><div class="spin"></div></div>
+      </div>`;
+
+    try {
+      // Re-fetch user profile from Google Sheets
+      const userRes = await apiCall('getUser', { email: cookieEmail });
+      if (userRes.success && userRes.user) {
+        app.user = userRes.user;
+        // Re-fetch chart data
+        const chartRes = await apiCall('getChartData', { email: cookieEmail });
+        app.chartData = (chartRes.success && chartRes.data) ? chartRes.data : {};
+        // Restore localStorage so next load is instant again
+        persistLogin(app.user, app.chartData);
+        bootMainApp();
+        return; // done — user is back in
+      }
+    } catch(e) {
+      console.warn('Cookie re-login failed:', e);
+    }
+
+    // Cookie email exists but server lookup failed — restore splash
+    restoreSplash();
+    return;
+  }
+
+  // ── STEP 3: No localStorage, no cookie — show splash normally ──
+  // (user needs to sign in manually)
+}
+
+// Restores the splash screen to its original state
+// (called if cookie re-login fails)
+function restoreSplash() {
+  document.getElementById('splash').innerHTML = `
+    <div class="logo-circle">V</div>
+    <div class="church-name">Victory Outreach Eagle Rock</div>
+    <h1 class="splash-h1">Spiritual<br><em>Breakthrough</em><br>Chart</h1>
+    <p class="splash-sub">31 days of prayer, God's Word, fasting, giving &amp; fellowship — tracked daily.</p>
+    <button class="btn btn-gold" id="btn-begin">Begin My Journey</button>
+    <button class="btn btn-ghost" id="btn-login">I already have an account</button>`;
+  // Re-wire buttons after restoring HTML
+  document.getElementById('btn-begin').addEventListener('click', startOnboard);
+  document.getElementById('btn-login').addEventListener('click', handleLogin);
+}
+
+async function handleLogin() {
+  const email = prompt('Enter your email address:');
+  if (!email) return;
+  const res = await apiCall('getUser', { email });
+  if (res.success && res.user) {
+    app.user = res.user;
+    const chart = await apiCall('getChartData', { email });
+    app.chartData = chart.success ? (chart.data || {}) : {};
+    persistLogin(app.user, app.chartData);
+    bootMainApp();
+  } else {
+    toast('Not Found', 'No account found. Please create one.');
+  }
+}
 </script>
 </body>
 </html>
