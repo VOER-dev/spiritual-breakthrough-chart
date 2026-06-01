@@ -139,6 +139,29 @@ table.bc{border-collapse:collapse;font-size:.62rem;min-width:580px;width:100%;}
 .scr-reveal .k{font-family:'Cinzel',serif;font-weight:700;color:var(--green);min-width:18px;}
 .scr-reveal .v{color:#a8dfc4;}
 
+/* ── CONGRATULATIONS SCREEN ───────────────────────────────── */
+#screen-congrats{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:radial-gradient(ellipse at center,#1a2744 0%,#0e1829 70%);
+  align-items:center;justify-content:center;text-align:center;padding:2rem;
+  flex-direction:column;
+}
+#screen-congrats.active{display:flex;}
+.congrats-trophy{font-size:4.5rem;margin-bottom:1rem;animation:bounce 1s ease infinite alternate;}
+@keyframes bounce{from{transform:translateY(0);}to{transform:translateY(-12px);}}
+.congrats-church{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.25em;color:var(--gold);margin-bottom:.4rem;}
+.congrats-h1{font-family:'Cinzel',serif;font-size:2rem;font-weight:700;color:#f5f7fa;line-height:1.2;margin-bottom:.75rem;}
+.congrats-h1 em{color:var(--gold);font-style:normal;}
+.congrats-verse{font-size:.82rem;color:var(--muted);max-width:300px;margin:.5rem auto 1rem;line-height:1.7;font-style:italic;}
+.congrats-verse strong{color:var(--gold);font-style:normal;}
+.congrats-stats{display:flex;gap:1rem;justify-content:center;margin:1.25rem 0 2rem;flex-wrap:wrap;}
+.cstat{background:var(--surf);border:1px solid var(--bdr);border-radius:6px;padding:.75rem 1.25rem;min-width:90px;}
+.cstat-val{font-family:'Cinzel',serif;font-size:1.6rem;font-weight:700;color:var(--gold);}
+.cstat-lbl{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:.15rem;}
+.confetti-wrap{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:9998;}
+.confetti-piece{position:absolute;width:8px;height:8px;top:-10px;animation:fall linear forwards;}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+
 /* ── COMMUNITY PANE ───────────────────────────────────── */
 .comm-wrap{padding:1.2rem;}
 .comm-title{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;color:var(--gold);text-align:center;margin-bottom:1.1rem;text-transform:uppercase;}
@@ -290,6 +313,25 @@ input:checked+.t-slider:before{transform:translateX(19px);background:var(--navy)
 
 <!-- TOAST -->
 <div id="toast"><div id="toast-title"></div><div id="toast-msg"></div></div>
+
+<!-- CONGRATULATIONS SCREEN -->
+<div id="screen-congrats">
+  <div class="confetti-wrap" id="confetti-wrap"></div>
+  <div class="congrats-trophy">🏆</div>
+  <div class="congrats-church">Victory Outreach Eagle Rock</div>
+  <h1 class="congrats-h1">You Did It!<br><em>31 Days of Victory</em></h1>
+  <div class="congrats-verse">
+    <strong>"To him who overcomes, I will give the right to sit with me on my throne."</strong><br>
+    Revelation 3:21
+  </div>
+  <div class="congrats-stats" id="congrats-stats"></div>
+  <p style="font-size:.82rem;color:var(--muted);max-width:280px;margin:0 auto 2rem;line-height:1.6;">
+    You have completed your 31-day Spiritual Breakthrough Challenge.
+    Ready to go again?
+  </p>
+  <button class="btn btn-gold" onclick="startNewRound()">Start Another 31 Days →</button>
+  <button class="btn btn-ghost" style="margin-top:.75rem;" onclick="viewCompletedChart()">View My Chart</button>
+</div>
 
 <!-- ════════════════════════════════════════════════════════
      JAVASCRIPT
@@ -538,6 +580,10 @@ function bootMainApp() {
   syncNotifUI();
   renderProfile();
   if (app.notifOn) scheduleNotif(app.notifTime);
+  // Auto-show congratulations if they finished 31 days
+  if (isComplete()) {
+    setTimeout(() => showCongrats(), 800);
+  }
 }
 
 /* ════════════════════════════════════════════════════════
@@ -611,18 +657,42 @@ function getDayNum() {
   return Math.min(Math.max(diff, 1), 31);
 }
 
+// Returns true if the user has been on this round for 31+ days
+// AND has checked in on day 31
+function isComplete() {
+  if (!app.user?.startDate) return false;
+  const ms   = new Date() - new Date(app.user.startDate);
+  const diff = Math.floor(ms / 86400000) + 1;
+  return diff > 31;
+}
+
+// Count total victories (number of true values in chartData)
+function countVictories() {
+  return Object.values(app.chartData || {}).filter(Boolean).length;
+}
+
 function renderCheckin() {
   const el    = document.getElementById('ci-body');
   const today = new Date().toISOString().split('T')[0];
   const done  = app.user?.lastCheckin === today;
   const day   = getDayNum();
 
+  // Day 31 completed — show congratulations
+  if (isComplete()) {
+    showCongrats();
+    return;
+  }
+
   if (done) {
+    // Show "come back tomorrow" — but if it's day 31, show congrats tomorrow
+    const msg = day === 31
+      ? 'You have completed Day 31! Your congratulations screen will appear tomorrow.'
+      : 'Check-in complete for today. Come back tomorrow!';
     el.innerHTML = `
       <div class="done-msg">
         <div class="icon">✓</div>
-        <h3>Victory Recorded!</h3>
-        <p style="font-size:.82rem;margin-top:.4rem;">Check-in complete for today.<br>Come back tomorrow!</p>
+        <h3>${day === 31 ? '🏆 Day 31 Complete!' : 'Victory Recorded!'}</h3>
+        <p style="font-size:.82rem;margin-top:.4rem;">${msg}</p>
         <p style="color:var(--gold);font-family:'Cinzel',serif;font-size:.78rem;margin-top:.9rem;">Day ${day} of 31</p>
       </div>`;
     return;
@@ -718,8 +788,21 @@ async function submitCheckin() {
       }
 
       document.querySelector('.sub-btn').style.display = 'none';
-      toast('Victory!', `Day ${day} recorded — keep going!`);
-      setTimeout(() => { renderCheckin(); showPane('chart'); }, 4500);
+
+      if (day === 31) {
+        // Day 31 — tell SW to fire congratulations notification
+        if (navigator.serviceWorker?.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'day31Complete',
+            name: app.user.firstName,
+          });
+        }
+        toast('Victory!', 'Day 31 complete — YOU DID IT!');
+        setTimeout(() => { showCongrats(); }, 3500);
+      } else {
+        toast('Victory!', `Day ${day} recorded — keep going!`);
+        setTimeout(() => { renderCheckin(); showPane('chart'); }, 4500);
+      }
     } else {
       toast('Error', res.message || 'Could not save. Try again.');
     }
@@ -962,6 +1045,19 @@ function localDB(action, p) {
     return { success: true, members: [] };
   }
 
+  if (action === 'resetUser') {
+    const u = JSON.parse(localStorage.getItem('sbc_user') || '{}');
+    u.startDate       = p.startDate;
+    u.lastCheckin     = null;
+    u.streak          = 0;
+    u.roundsCompleted = p.round;
+    localStorage.setItem('sbc_user',  JSON.stringify(u));
+    localStorage.setItem('sbc_chart', JSON.stringify({}));
+    app.user      = u;
+    app.chartData = {};
+    return { success: true };
+  }
+
   return { success: false, message: 'Unknown action' };
 }
 
@@ -1019,9 +1115,146 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Register service worker
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => {
+        console.log('[App] Service worker registered');
+
+        // Listen for messages FROM the service worker
+        navigator.serviceWorker.addEventListener('message', event => {
+          const { type, day } = event.data || {};
+
+          // SW says: open the check-in tab (user tapped notification)
+          if (type === 'openCheckin') {
+            showPane('checkin');
+          }
+
+          // SW says: an offline check-in was synced successfully
+          if (type === 'syncComplete') {
+            toast('Synced!', `Your offline check-in for Day ${day} was saved.`);
+            renderChart();
+          }
+
+          // SW says: snooze was requested (user dismissed notification)
+          if (type === 'snooze') {
+            const ms = event.data.snoozeMs || 3600000;
+            setTimeout(() => {
+              if (Notification.permission === 'granted') {
+                new Notification('Spiritual Breakthrough Chart', {
+                  body: `Day ${getDayNum()} — Ready to record your victories?`,
+                  tag : 'sbc-daily-snooze',
+                  renotify: true,
+                });
+              }
+            }, ms);
+          }
+        });
+
+        // Tell SW user is logged in (clears any snooze flags)
+        if (app.user) {
+          reg.active?.postMessage({ type: 'userLoggedIn' });
+        }
+
+        // Register background sync for offline check-ins
+        if ('SyncManager' in window) {
+          reg.sync.register('sync-checkins').catch(() => {});
+        }
+      })
+      .catch(err => console.warn('[App] SW registration failed:', err));
   }
 });
+
+/* ════════════════════════════════════════════════════════
+   CONGRATULATIONS + ROUND RESET
+════════════════════════════════════════════════════════ */
+
+function showCongrats() {
+  const u = app.user;
+  const victories = countVictories();
+  const rounds = (u.roundsCompleted || 0) + 1;
+
+  // Populate stats
+  document.getElementById('congrats-stats').innerHTML = `
+    <div class="cstat"><div class="cstat-val">${victories}</div><div class="cstat-lbl">Total Victories</div></div>
+    <div class="cstat"><div class="cstat-val">31</div><div class="cstat-lbl">Days Completed</div></div>
+    <div class="cstat"><div class="cstat-val">${rounds}</div><div class="cstat-lbl">Round${rounds > 1 ? 's' : ''} Done</div></div>`;
+
+  // Show the screen
+  document.getElementById('screen-congrats').classList.add('active');
+
+  // Launch confetti
+  launchConfetti();
+}
+
+function hideCongrats() {
+  document.getElementById('screen-congrats').classList.remove('active');
+}
+
+function viewCompletedChart() {
+  hideCongrats();
+  showPane('chart');
+}
+
+async function startNewRound() {
+  if (!confirm('Start a new 31-day round? Your current chart will be cleared and a fresh chart will begin today.')) return;
+
+  hideCongrats();
+
+  const today = new Date().toISOString().split('T')[0];
+  const u     = app.user;
+
+  // Update user with new start date, reset chart, increment rounds
+  u.startDate        = today;
+  u.lastCheckin      = null;
+  u.streak           = 0;
+  u.roundsCompleted  = (u.roundsCompleted || 0) + 1;
+  app.chartData      = {};
+
+  // Save locally immediately
+  persistLogin(u, {});
+
+  // Save to Google Sheets
+  try {
+    await apiCall('resetUser', {
+      email     : u.email,
+      startDate : today,
+      round     : u.roundsCompleted,
+    });
+  } catch(e) {
+    console.warn('Could not reset on server — will sync later');
+  }
+
+  // Tell SW to clear snooze flags and update state
+  if (navigator.serviceWorker?.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'newRoundStarted' });
+  }
+  toast('New Round Started!', `Round ${u.roundsCompleted} begins today. Let's go!`);
+  renderChart();
+  renderCheckin();
+  showPane('chart');
+}
+
+// ── CONFETTI ANIMATION ────────────────────────────────────────
+function launchConfetti() {
+  const wrap   = document.getElementById('confetti-wrap');
+  wrap.innerHTML = '';
+  const colors = ['#c9a84c','#e8c97a','#3dbd7a','#f5f7fa','#c9a84c','#e05252','#8fa3b8'];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.cssText = `
+      left:${Math.random() * 100}%;
+      background:${colors[Math.floor(Math.random() * colors.length)]};
+      width:${6 + Math.random() * 8}px;
+      height:${6 + Math.random() * 8}px;
+      border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+      animation-duration:${2 + Math.random() * 3}s;
+      animation-delay:${Math.random() * 2}s;
+      opacity:${0.7 + Math.random() * 0.3};`;
+    wrap.appendChild(piece);
+  }
+  // Clear confetti after animation completes
+  setTimeout(() => { wrap.innerHTML = ''; }, 6000);
+}
 
 /* ════════════════════════════════════════════════════════
    PERSISTENT LOGIN
