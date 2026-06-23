@@ -10,7 +10,7 @@
 //  index.html or admin.html so phones load the new files.
 // ================================================================
 
-const CACHE_VERSION = 'sbc-v5';
+const CACHE_VERSION = 'sbc-v4';
 
 const CACHED_FILES = [
   './index.html',
