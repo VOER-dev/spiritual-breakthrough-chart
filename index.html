@@ -552,11 +552,6 @@ async function submitProfile() {
     const res = await apiCall('createUser', app.draft);
     if (res.success) {
       app.user = res.user;
-      // Guarantee startDate is always YYYY-MM-DD with no time component
-      // This prevents timezone/time-of-day issues with getDayNum
-      if (app.user.startDate) {
-        app.user.startDate = app.user.startDate.toString().split('T')[0];
-      }
       bootMainApp();
       toast('Welcome!', `Your 31-day journey starts today, ${app.draft.firstName}!`);
     } else {
@@ -655,26 +650,20 @@ function renderChart() {
 /* ════════════════════════════════════════════════════════
    DAILY CHECK-IN
 ════════════════════════════════════════════════════════ */
-// Compare calendar dates only — ignores time of day entirely.
-// This fixes the bug where signing up at 6pm and opening the app
-// at 8am next day showed a wrong day number.
-function dateDiffDays(dateStr) {
-  // Strip time — only compare YYYY-MM-DD
-  const start = new Date(dateStr + 'T00:00:00');
-  const today = new Date(new Date().toISOString().split('T')[0] + 'T00:00:00');
-  return Math.floor((today - start) / 86400000);
-}
-
 function getDayNum() {
   if (!app.user?.startDate) return 1;
-  const diff = dateDiffDays(app.user.startDate) + 1;
+  const ms   = new Date() - new Date(app.user.startDate);
+  const diff = Math.floor(ms / 86400000) + 1;
   return Math.min(Math.max(diff, 1), 31);
 }
 
-// Returns true once the user has passed day 31 (calendar days since start > 31)
+// Returns true if the user has been on this round for 31+ days
+// AND has checked in on day 31
 function isComplete() {
   if (!app.user?.startDate) return false;
-  return dateDiffDays(app.user.startDate) >= 31;
+  const ms   = new Date() - new Date(app.user.startDate);
+  const diff = Math.floor(ms / 86400000) + 1;
+  return diff > 31;
 }
 
 // Count total victories (number of true values in chartData)
@@ -1206,57 +1195,42 @@ function viewCompletedChart() {
 }
 
 async function startNewRound() {
-  if (!confirm('Start a new 31-day round? Your victories will be saved to your history and your chart will reset to Day 1.')) return;
+  if (!confirm('Start a new 31-day round? Your current chart will be cleared and a fresh chart will begin today.')) return;
 
   hideCongrats();
 
-  // Show loading state
-  toast('Resetting…', 'Clearing your chart and starting fresh.');
-
   const today = new Date().toISOString().split('T')[0];
   const u     = app.user;
-  const prevRound = (u.roundsCompleted || 0) + 1;
 
+  // Update user with new start date, reset chart, increment rounds
+  u.startDate        = today;
+  u.lastCheckin      = null;
+  u.streak           = 0;
+  u.roundsCompleted  = (u.roundsCompleted || 0) + 1;
+  app.chartData      = {};
+
+  // Save locally immediately
+  persistLogin(u, {});
+
+  // Save to Google Sheets
   try {
-    // Tell Google Sheets to:
-    // 1. Archive the old check-in rows (keeps history)
-    // 2. Delete them from CheckIns so chart shows empty
-    // 3. Reset startDate, streak, lastCheckin on Users row
-    const res = await apiCall('resetUser', {
+    await apiCall('resetUser', {
       email     : u.email,
       startDate : today,
-      round     : prevRound,
+      round     : u.roundsCompleted,
     });
-
-    if (!res.success) {
-      toast('Error', res.message || 'Could not reset. Try again.');
-      return;
-    }
-
-    // Update local state AFTER server confirms reset
-    u.startDate       = today;
-    u.lastCheckin     = null;
-    u.streak          = 0;
-    u.roundsCompleted = prevRound;
-    app.chartData     = {};
-
-    // Save fresh state locally
-    persistLogin(u, {});
-
-    // Tell SW new round started (clears snooze flags)
-    if (navigator.serviceWorker?.controller) {
-      navigator.serviceWorker.controller.postMessage({ type: 'newRoundStarted' });
-    }
-
-    toast('New Round Started!', `Round ${prevRound} begins today — Day 1 of 31!`);
-    renderChart();
-    renderCheckin();
-    showPane('chart');
-
   } catch(e) {
-    console.error('Reset error:', e);
-    toast('Error', 'Connection failed. Check your internet and try again.');
+    console.warn('Could not reset on server — will sync later');
   }
+
+  // Tell SW to clear snooze flags and update state
+  if (navigator.serviceWorker?.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'newRoundStarted' });
+  }
+  toast('New Round Started!', `Round ${u.roundsCompleted} begins today. Let's go!`);
+  renderChart();
+  renderCheckin();
+  showPane('chart');
 }
 
 // ── CONFETTI ANIMATION ────────────────────────────────────────
@@ -1327,10 +1301,6 @@ async function autoLogin() {
     try {
       app.user      = JSON.parse(savedUser);
       app.chartData = savedChart ? JSON.parse(savedChart) : {};
-      // Always ensure startDate has no time component
-      if (app.user.startDate) {
-        app.user.startDate = app.user.startDate.toString().split('T')[0];
-      }
       bootMainApp();
       // Silently refresh chart data from server in background
       apiCall('getChartData', { email: app.user.email }).then(r => {
@@ -1416,3 +1386,5 @@ async function handleLogin() {
 </script>
 </body>
 </html>
+
+
